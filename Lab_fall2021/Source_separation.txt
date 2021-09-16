@@ -1,0 +1,9 @@
+spleeter separate -p spleeter:2stems -o output Wawu.wav
+
+umx Wawu_16bit.wav
+
+python3 -m demucs.separate -d cpu Wawu.wav
+
+
+python3 vggish_inference_demo.py --wav_file /Users/likelian/Desktop/Lab/Lab_fall2021/Audio/amy_1.wav \
+--tfrecord_file /Users/likelian/Desktop/Lab/Lab_fall2021/TFRecord/amy_1
