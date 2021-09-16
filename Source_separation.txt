@@ -1,5 +1,0 @@
-spleeter separate -p spleeter:2stems -o output Wawu.wav
-
-umx Wawu_16bit.wav
-
-python3 -m demucs.separate -d cpu Wawu.wav
