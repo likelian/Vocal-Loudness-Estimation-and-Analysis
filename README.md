@@ -65,3 +65,7 @@ To-Do:
 2. Find some low-level features
 3. SVM regression or NN
 4. Sliding window problem...
+
+Low-level features => SVM
+VGG embeddings => SVM
+Source Separation embeddings => SVM
