@@ -21,11 +21,12 @@ def ground_truth(audio_path, filename):
     vox_shortTermLoudness = shortTermLoudness(vox, SR=sampleRate)
 
     ground_truth = {}
-    ground_truth[filename+"_acc_shortTermLoudness"] = acc_shortTermLoudness.tolist()
-    ground_truth[filename+"_vox_shortTermLoudness"] = vox_shortTermLoudness.tolist()
+    filename_noExt = filename[:-4]
+    ground_truth[filename_noExt+"_acc_shortTermLoudness"] = acc_shortTermLoudness.tolist()
+    ground_truth[filename_noExt+"_vox_shortTermLoudness"] = vox_shortTermLoudness.tolist()
 
-    ground_truth_path = "../ground_truth/"
-    with open(ground_truth_path + 'ground_truth.txt', 'w') as outfile:
+    ground_truth_path = "../Ground_truth/"
+    with open(ground_truth_path + 'ground_truth.json', 'w') as outfile:
         json.dump(ground_truth, outfile)
 
     mixture_path = "../Audio/MIR-1K_mixture"
