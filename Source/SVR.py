@@ -24,6 +24,12 @@ X = rng.randn(ground_truth_array.size, 2)
 regr = make_pipeline(StandardScaler(), SVR(C=1.0, epsilon=0.2))
 regr.fit(X, ground_truth_array)
 
+y_pred = regr.predict(X)
+
+print(np.array([ground_truth_array.T, y_pred.T]))
+t = np.arange(ground_truth_array.size)
+plt.plot(t, ground_truth_array, y_pred)
+plt.show()
 
 
 ############################################################################
