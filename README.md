@@ -69,3 +69,22 @@ To-Do:
 Low-level features => SVM
 VGG embeddings => SVM
 Source Separation embeddings => SVM
+
+
+* * *
+
+### 09/23/2021
+
+Last Week:
+
+1. Built the groundtruth data
+2. Found more possible dataset
+2. Some problems with SVM
+
+
+To-Do:
+
+1. try subsamples of each track, make SVM run
+2. dual output/one model or single output/two models?
+3. a few low level features
+4. relative loudness against the mixture loudness?
