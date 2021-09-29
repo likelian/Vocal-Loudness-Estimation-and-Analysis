@@ -11,8 +11,7 @@ import time
 
 ############################################################################
 
-#initial the model
-regr = make_pipeline(StandardScaler(), SVR(C=1.0, epsilon=0.2))
+
 
 ############################################################################
 
@@ -36,7 +35,10 @@ ground_truth_path = "../Ground_truth/"
 
 abs_ground_truth_path = os.path.abspath(ground_truth_path)
 
-ground_truth_array = np.array([])
+ground_truth_voxREL = np.array([])
+ground_truth_accREL = np.array([])
+ground_truth_array = np.array([]) #should be removeds
+
 rand_features = None
 rng = np.random.RandomState(0)
 ############################################################################
@@ -46,30 +48,110 @@ for filename in os.listdir(abs_ground_truth_path):
     if filename.endswith(".json"):
         f = open(abs_ground_truth_path+"/"+filename)
         ground_truth_dict = json.load(f)
-        for key in list(ground_truth_dict.keys())[-2:]:
-            current_ground_truth = np.array(ground_truth_dict[key])
-            ground_truth_array = np.concatenate([ground_truth_array, current_ground_truth], axis=None)
 
-            if rand_features is None:
-                rand_features = rng.randn(current_ground_truth.size, 30)
-            else:
-                rand_features = np.concatenate([rand_features, rng.randn(current_ground_truth.size, 30)], axis=0)
+        for key in list(ground_truth_dict.keys()):
+            length = np.array(ground_truth_dict[key]).size
+
+            if "_accREL_" in key:
+                current_ground_truth_accREL = np.array(ground_truth_dict[key])
+                ground_truth_accREL = np.concatenate([ground_truth_accREL, current_ground_truth_accREL], axis=None)
+
+            if "_voxREL_" in key:
+                current_ground_truth_voxREL = np.array(ground_truth_dict[key])
+                ground_truth_voxREL = np.concatenate([ground_truth_voxREL, current_ground_truth_voxREL], axis=None)
+
+        if rand_features is None:
+            rand_features = rng.randn(length, 30)
+        else:
+            rand_features = np.concatenate([rand_features, rng.randn(length, 30)], axis=0)
+
+    ground_truth_pair = np.stack((ground_truth_accREL, ground_truth_voxREL), axis=-1)
+
+
+
 
 print("data created")
 
 print(rand_features.shape)
-print(ground_truth_array.shape)
+print(ground_truth_accREL.shape)
+print(ground_truth_voxREL.shape)
+print(ground_truth_pair.shape)
+
+
+
 
 ############################################################################
 
 #train the model
 
-rand_features = rand_features
-ground_truth_array = ground_truth_array
+from sklearn.linear_model import LinearRegression
 
 start = time.time()
 
-regr.fit(rand_features, ground_truth_array)
+reg = LinearRegression()
+setattr(reg, "coef_", (2,30))
+reg.fit(rand_features, ground_truth_pair)
+
+end = time.time()
+
+print("LinearRegression")
+print(end - start)
+
+
+y_predict = reg.predict(rng.randn(10, 30))
+print(y_predict)
+
+
+quit()
+
+############################################################################
+
+#train the model
+
+from sklearn.linear_model import SGDRegressor
+from sklearn.pipeline import make_pipeline
+reg = make_pipeline(StandardScaler(), SGDRegressor(max_iter=100000, tol=1e-3))
+
+start = time.time()
+
+reg.fit(rand_features[:100000], ground_truth_array[:100000])
+
+end = time.time()
+
+print("SGDRegressor")
+print(end - start)
+
+
+############################################################################
+
+#train the model
+
+
+from xgboost import XGBRegressor
+# load the dataset
+
+model = XGBRegressor()
+
+start = time.time()
+
+model.fit(rand_features[:100000], ground_truth_array[:100000])
+end = time.time()
+print("XGBRegressor")
+print(end - start)
+
+
+############################################################################
+
+
+
+
+#initial the model
+regr = make_pipeline(StandardScaler(), SVR(C=1.0, epsilon=0.2))
+
+
+start = time.time()
+
+regr.fit(rand_features[:100000], ground_truth_array[:100000])
 
 end = time.time()
 print(end - start)
