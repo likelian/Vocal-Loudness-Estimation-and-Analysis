@@ -10,14 +10,6 @@ import time
 
 
 ############################################################################
-
-
-
-############################################################################
-
-
-
-############################################################################
 """
 f = open("/Users/likelian/Desktop/Lab/Lab_fall2021/Test/abjones_1_ground_truth.json")
 ground_truth_dict = json.load(f)
@@ -37,7 +29,6 @@ abs_ground_truth_path = os.path.abspath(ground_truth_path)
 
 ground_truth_voxREL = np.array([])
 ground_truth_accREL = np.array([])
-ground_truth_array = np.array([]) #should be removeds
 
 rand_features = None
 rng = np.random.RandomState(0)
@@ -102,24 +93,32 @@ y_predict = reg.predict(rng.randn(10, 30))
 print(y_predict)
 
 
-quit()
-
 ############################################################################
 
 #train the model
 
 from sklearn.linear_model import SGDRegressor
 from sklearn.pipeline import make_pipeline
-reg = make_pipeline(StandardScaler(), SGDRegressor(max_iter=100000, tol=1e-3))
+
+from sklearn.multioutput import RegressorChain
+
+
+
+reg = make_pipeline(StandardScaler(), SGDRegressor(max_iter=10000, tol=1e-3))
+
+chain = RegressorChain(base_estimator=reg, order=[0, 1])
 
 start = time.time()
 
-reg.fit(rand_features[:100000], ground_truth_array[:100000])
+chain.fit(rand_features, ground_truth_pair)
 
 end = time.time()
 
 print("SGDRegressor")
 print(end - start)
+
+
+
 
 
 ############################################################################
@@ -132,28 +131,33 @@ from xgboost import XGBRegressor
 
 model = XGBRegressor()
 
+chain = RegressorChain(base_estimator=model, order=[0, 1])
+
 start = time.time()
 
-model.fit(rand_features[:100000], ground_truth_array[:100000])
+chain.fit(rand_features, ground_truth_pair)
+
 end = time.time()
+
 print("XGBRegressor")
 print(end - start)
 
+quit()
 
 ############################################################################
-
-
 
 
 #initial the model
 regr = make_pipeline(StandardScaler(), SVR(C=1.0, epsilon=0.2))
 
+chain = RegressorChain(base_estimator=regr, order=[0, 1])
 
 start = time.time()
 
-regr.fit(rand_features[:100000], ground_truth_array[:100000])
+chain.fit(rand_features, ground_truth_pair)
 
 end = time.time()
+
 print(end - start)
 
 
