@@ -30,12 +30,15 @@ rand_features_test = np.expand_dims(ground_truth_array_test, axis=1)
 """
 ############################################################################
 
+
+
 ground_truth_path = "../Ground_truth/"
 
 abs_ground_truth_path = os.path.abspath(ground_truth_path)
 
 ground_truth_array = np.array([])
 rand_features = None
+rng = np.random.RandomState(0)
 ############################################################################
 
 for filename in os.listdir(abs_ground_truth_path):
@@ -43,14 +46,14 @@ for filename in os.listdir(abs_ground_truth_path):
     if filename.endswith(".json"):
         f = open(abs_ground_truth_path+"/"+filename)
         ground_truth_dict = json.load(f)
-        for key in ground_truth_dict.keys():
+        for key in list(ground_truth_dict.keys())[-2:]:
             current_ground_truth = np.array(ground_truth_dict[key])
             ground_truth_array = np.concatenate([ground_truth_array, current_ground_truth], axis=None)
 
             if rand_features is None:
-                rand_features = rng.randn(current_ground_truth.size, 3)
+                rand_features = rng.randn(current_ground_truth.size, 30)
             else:
-                rand_features = np.concatenate([rand_features, rng.randn(current_ground_truth.size, 3)], axis=0)
+                rand_features = np.concatenate([rand_features, rng.randn(current_ground_truth.size, 30)], axis=0)
 
 print("data created")
 
@@ -61,6 +64,8 @@ print(ground_truth_array.shape)
 
 #train the model
 
+rand_features = rand_features
+ground_truth_array = ground_truth_array
 
 start = time.time()
 

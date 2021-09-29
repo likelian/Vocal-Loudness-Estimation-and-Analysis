@@ -16,29 +16,40 @@ def ground_truth(audio_path, filename):
 
     acc = np.array([data.T[0]/2, data.T[0]/2], dtype=np.float32).T #Accompaniment
     vox = np.array([data.T[1]/2, data.T[1]/2], dtype=np.float32).T #Vocal
+    mix = (acc.T + vox.T).T #mono_sum
 
     acc_shortTermLoudness = shortTermLoudness(acc, SR=sampleRate)
     vox_shortTermLoudness = shortTermLoudness(vox, SR=sampleRate)
+    mix_shortTermLoudness = shortTermLoudness(mix, SR=sampleRate)
+    accREL_shortTermLoudness = acc_shortTermLoudness - mix_shortTermLoudness
+    voxREL_shortTermLoudness = vox_shortTermLoudness - mix_shortTermLoudness
 
     ground_truth = {}
     filename_noExt = filename[:-4]
     ground_truth[filename_noExt+"_acc_shortTermLoudness"] = acc_shortTermLoudness.tolist()
     ground_truth[filename_noExt+"_vox_shortTermLoudness"] = vox_shortTermLoudness.tolist()
+    ground_truth[filename_noExt+"_mix_shortTermLoudness"] = mix_shortTermLoudness.tolist()
+    ground_truth[filename_noExt+"_accREL_shortTermLoudness"] = accREL_shortTermLoudness.tolist()
+    ground_truth[filename_noExt+"_voxREL_shortTermLoudness"] = voxREL_shortTermLoudness.tolist()
 
     ground_truth_path = "../Ground_truth/"
     with open(ground_truth_path + filename_noExt + "_ground_truth.json", 'w') as outfile:
         json.dump(ground_truth, outfile)
 
     mixture_path = "../Audio/MIR-1K_mixture"
-    mix(acc, vox, sampleRate, mixture_path, filename)
+    #mix(acc, vox, sampleRate, mixture_path, filename)
+    filename  = "mixture" + "_" + filename
+    mixture_path_filename = mixture_path + "/" + filename
+    sf.write(mixture_path_filename, mix, sampleRate)
 
 ########################################################
-
+"""
 def mix(acc, vox, sampleRate, mixture_path, filename):
     mixture_Data = (acc.T + vox.T).T #mono_sum
     filename  = "mixture" + "_" + filename
     mixture_path_filename = mixture_path + "/" + filename
     sf.write(mixture_path_filename, mixture_Data, sampleRate)
+    """
 
 ########################################################
 
