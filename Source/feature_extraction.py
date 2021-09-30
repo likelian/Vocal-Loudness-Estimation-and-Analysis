@@ -1,13 +1,8 @@
 import soundfile as sf
 import numpy as np
-import sys
-sys.path.append('/usr/local/lib/python3.8/site-packages')
-import essentia
-import essentia.standard
+import librosa
 import json
 import os
-from pylab import plot, show, figure, imshow
-import matplotlib.pyplot as plt
 
 
 
@@ -15,6 +10,7 @@ import matplotlib.pyplot as plt
 def left_channel(audio):
 
     audio = np.array(audio.T[0], dtype=np.float32).T
+    audio = audio.astype(np.single)
 
     return audio
 
@@ -42,7 +38,6 @@ def block_audio(x,blockSize,hopSize,fs):
 
         if xb is not None:
             xb = np.concatenate((xb, newBlock), axis=0)
-            print(xb.shape)
         else:
             xb = newBlock
 
@@ -53,53 +48,39 @@ def block_audio(x,blockSize,hopSize,fs):
     return xb, timeInSec
 
 
+########################################################
 
 
 def feature_extraction(audio_path, filename):
 
     audio, sampleRate = sf.read(audio_path + "/" + filename)
-
     audio = left_channel(audio)
 
-    w = essentia.standard.Windowing(type = 'hann')
-    spectrum = essentia.standard.Spectrum()
-    mfcc = essentia.standard.MFCC()
-    logNorm = essentia.standard.UnaryOperator(type='log')
+    hop_size = 1024
+    mfccs = librosa.feature.mfcc(audio, sr=sampleRate, hop_length=hop_size) #window 2048
 
-    mfccs = []
-    melbands = []
-    melbands_log = []
+    timeInSec = np.arange(mfccs.shape[1]) * hop_size / sampleRate
 
+    mfcc_mean = None
+    current_time = 0.0
 
-    for frame in block_audio(audio, 1024, 512, sampleRate)[0]:
-        mfcc_bands, mfcc_coeffs = mfcc(spectrum(w(frame)))
-        mfccs.append(mfcc_coeffs)
-        melbands.append(mfcc_bands)
-        melbands_log.append(logNorm(mfcc_bands))
+    mfccs_T = mfccs.T
 
-        # transpose to have it in a better shape
-        # we need to convert the list to an essentia.array first (== numpy.array of floats)
-        mfccs = essentia.array(mfccs).T
-        melbands = essentia.array(melbands).T
-        melbands_log = essentia.array(melbands_log).T
+    while current_time <= np.max(timeInSec)-3+(2048/sampleRate):
 
-        # and plot
-        imshow(melbands[:,:], aspect = 'auto', origin='lower', interpolation='none')
-        plt.title("Mel band spectral energies in frames")
-        show()
+        idx_min = np.searchsorted(timeInSec, current_time, 'right')
+        idx_max = np.searchsorted(timeInSec, current_time+3.0, 'left') - 1
 
-        imshow(melbands_log[:,:], aspect = 'auto', origin='lower', interpolation='none')
-        plt.title("Log-normalized mel band spectral energies in frames")
-        show()
+        current_time += 0.1
 
-        imshow(mfccs[1:,:], aspect='auto', origin='lower', interpolation='none')
-        plt.title("MFCCs in frames")
-        show()
+        if mfcc_mean is None:
+            mfcc_mean = np.mean(mfccs_T[idx_min:idx_max], axis=0)[:,np.newaxis].T
 
-        break
+        else:
+            mfcc_mean = np.concatenate([mfcc_mean, np.mean(mfccs_T[idx_min:idx_max],axis=0)[:,np.newaxis].T], axis=0)
 
 
-
+    print(mfcc_mean.shape)
 
 
 
@@ -111,7 +92,10 @@ audio_path = "../Audio/MIR-1K_mixture"
 
 abs_audio_path = os.path.abspath(audio_path)
 
+counter = 0
 for filename in os.listdir(abs_audio_path):
     if filename.endswith(".wav"):
         feature_extraction(audio_path, filename)
-    break
+
+    counter += 1
+    if counter >= 10: break

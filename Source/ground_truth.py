@@ -24,8 +24,11 @@ def ground_truth(audio_path, filename):
     accREL_shortTermLoudness = acc_shortTermLoudness - mix_shortTermLoudness
     voxREL_shortTermLoudness = vox_shortTermLoudness - mix_shortTermLoudness
 
+    timeInSec = np.arange(acc_shortTermLoudness.size) * 0.1
+
     ground_truth = {}
     filename_noExt = filename[:-4]
+    ground_truth[filename_noExt+"_timeInSec"] = timeInSec.tolist()
     ground_truth[filename_noExt+"_acc_shortTermLoudness"] = acc_shortTermLoudness.tolist()
     ground_truth[filename_noExt+"_vox_shortTermLoudness"] = vox_shortTermLoudness.tolist()
     ground_truth[filename_noExt+"_mix_shortTermLoudness"] = mix_shortTermLoudness.tolist()
