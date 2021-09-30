@@ -3,7 +3,7 @@ import numpy as np
 import sys
 sys.path.append('/usr/local/lib/python3.8/site-packages')
 import essentia
-import essentia.standard as ess
+import essentia.standard
 import json
 import os
 
@@ -37,19 +37,10 @@ def ground_truth(audio_path, filename):
         json.dump(ground_truth, outfile)
 
     mixture_path = "../Audio/MIR-1K_mixture"
-    #mix(acc, vox, sampleRate, mixture_path, filename)
     filename  = "mixture" + "_" + filename
     mixture_path_filename = mixture_path + "/" + filename
     sf.write(mixture_path_filename, mix, sampleRate)
 
-########################################################
-"""
-def mix(acc, vox, sampleRate, mixture_path, filename):
-    mixture_Data = (acc.T + vox.T).T #mono_sum
-    filename  = "mixture" + "_" + filename
-    mixture_path_filename = mixture_path + "/" + filename
-    sf.write(mixture_path_filename, mixture_Data, sampleRate)
-    """
 
 ########################################################
 
