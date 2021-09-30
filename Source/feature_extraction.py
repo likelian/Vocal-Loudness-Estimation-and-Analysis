@@ -51,12 +51,11 @@ def block_audio(x,blockSize,hopSize,fs):
 ########################################################
 
 
-def feature_extraction(audio_path, filename):
 
-    audio, sampleRate = sf.read(audio_path + "/" + filename)
-    audio = left_channel(audio)
+def MFCC(audio, sampleRate):
 
     hop_size = 1024
+
     mfccs = librosa.feature.mfcc(audio, sr=sampleRate, hop_length=hop_size) #window 2048
 
     timeInSec = np.arange(mfccs.shape[1]) * hop_size / sampleRate
@@ -78,6 +77,42 @@ def feature_extraction(audio_path, filename):
 
         else:
             mfcc_mean = np.concatenate([mfcc_mean, np.mean(mfccs_T[idx_min:idx_max],axis=0)[:,np.newaxis].T], axis=0)
+
+
+    return mfcc_mean
+
+
+########################################################
+
+
+
+
+
+########################################################
+
+
+
+
+def feature_extraction(audio_path, filename):
+
+    audio, sampleRate = sf.read(audio_path + "/" + filename)
+    audio = left_channel(audio)
+
+
+    mfcc_mean = MFCC(audio, sampleRate)
+
+
+    feature_dict = {}
+    filename_noExt = filename[8:-4]
+
+    print(filename_noExt)
+
+    feature_dict[filename_noExt+"_mfcc_mean"] = mfcc_mean.tolist()
+
+
+    feature_path = "../Features/"
+    with open(feature_path + filename_noExt + "_features.json", 'w') as outfile:
+        json.dump(feature_dict, outfile)
 
 
     print(mfcc_mean.shape)
