@@ -24,19 +24,40 @@ rand_features_test = np.expand_dims(ground_truth_array_test, axis=1)
 
 
 ground_truth_path = "../Ground_truth/"
-
 abs_ground_truth_path = os.path.abspath(ground_truth_path)
+
 
 ground_truth_voxREL = np.array([])
 ground_truth_accREL = np.array([])
+
+
+feature_path = "../Features/"
+abs_feature_path = os.path.abspath(feature_path)
+
+
+features = None
+
+############################################################################
 
 rand_features = None
 rng = np.random.RandomState(0)
 ############################################################################
 
+
+unmatched = 0
+
 for filename in os.listdir(abs_ground_truth_path):
 
     if filename.endswith(".json"):
+
+
+        first_underscore = filename.find("_")
+        second_underscore = filename.find('_', first_underscore + 1)
+
+        ground_truth_name = filename[:second_underscore] + "_features.json"
+
+
+
         f = open(abs_ground_truth_path+"/"+filename)
         ground_truth_dict = json.load(f)
 
@@ -51,24 +72,61 @@ for filename in os.listdir(abs_ground_truth_path):
                 current_ground_truth_voxREL = np.array(ground_truth_dict[key])
                 ground_truth_voxREL = np.concatenate([ground_truth_voxREL, current_ground_truth_voxREL], axis=None)
 
+
+
+        f_feature = open(abs_feature_path+"/"+ground_truth_name)
+        feature_dict = json.load(f_feature)
+
+        current_features = np.array([])
+        for key in list(feature_dict.keys()):
+            #needs to change when we have more feature types
+            current_features = np.array(feature_dict[key])
+
+
+        if features is None:
+            features = current_features
+        else:
+            features = np.concatenate([features, current_features], axis=0)
+
+
+        if length != current_features.shape[0]:
+            print("   ")
+            print(filename)
+            print("feature length")
+            print(current_features.shape[0])
+            print("ground_truth_length")
+            print(length)
+            unmatched += 1
+
+
+
+
         if rand_features is None:
             rand_features = rng.randn(length, 30)
         else:
             rand_features = np.concatenate([rand_features, rng.randn(length, 30)], axis=0)
 
+
+
+
     ground_truth_pair = np.stack((ground_truth_accREL, ground_truth_voxREL), axis=-1)
+
+
+############################################################################
 
 
 
 
 print("data created")
-
+print(unmatched)
 print(rand_features.shape)
 print(ground_truth_accREL.shape)
 print(ground_truth_voxREL.shape)
 print(ground_truth_pair.shape)
+print(features.shape)
 
 
+quit()
 
 
 ############################################################################
@@ -81,7 +139,7 @@ start = time.time()
 
 reg = LinearRegression()
 setattr(reg, "coef_", (2,30))
-reg.fit(rand_features, ground_truth_pair)
+reg.fit(features, ground_truth_pair)
 
 end = time.time()
 
@@ -91,6 +149,7 @@ print(end - start)
 
 y_predict = reg.predict(rng.randn(10, 30))
 print(y_predict)
+
 
 
 ############################################################################

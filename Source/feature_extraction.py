@@ -7,10 +7,33 @@ import os
 
 
 
+
+import sys
+sys.path.append('/usr/local/lib/python3.8/site-packages')
+import essentia
+import essentia.standard
+
+def shortTermLoudness(buffer, SR=44100, HS=0.1):
+    """
+    default sample rate: 44100Hz
+    default hop size: 0.1s
+
+    return: an array of shortTermLoudness in dB
+    """
+    LoudnessEBUR128 = essentia.standard.LoudnessEBUR128(sampleRate=SR, hopSize=HS)
+    shortTermLoudness = LoudnessEBUR128(buffer)[1]
+    return shortTermLoudness
+
+
+
+
+
+
+
 def left_channel(audio):
 
     audio = np.array(audio.T[0], dtype=np.float32).T
-    audio = audio.astype(np.single)
+    #audio = audio.astype(np.single)
 
     return audio
 
@@ -52,9 +75,11 @@ def block_audio(x,blockSize,hopSize,fs):
 
 
 
-def MFCC(audio, sampleRate):
+def MFCC(audio, sampleRate, audio_stereo):
 
-    hop_size = 1024
+    audio_length = audio.size/sampleRate
+
+    hop_size = 512
 
     mfccs = librosa.feature.mfcc(audio, sr=sampleRate, hop_length=hop_size) #window 2048
 
@@ -65,7 +90,9 @@ def MFCC(audio, sampleRate):
 
     mfccs_T = mfccs.T
 
-    while current_time <= np.max(timeInSec)-3+(2048/sampleRate):
+    #print(audio_length - np.max(timeInSec))
+
+    while current_time <= audio_length -3 + (0/sampleRate):
 
         idx_min = np.searchsorted(timeInSec, current_time, 'right')
         idx_max = np.searchsorted(timeInSec, current_time+3.0, 'left') - 1
@@ -77,6 +104,21 @@ def MFCC(audio, sampleRate):
 
         else:
             mfcc_mean = np.concatenate([mfcc_mean, np.mean(mfccs_T[idx_min:idx_max],axis=0)[:,np.newaxis].T], axis=0)
+
+
+    """
+    shortLUFS = shortTermLoudness(audio_stereo, sampleRate)
+
+    if shortLUFS.size - 1  != mfcc_mean.shape[0]:
+        print("audio length")
+        print(audio_length)
+        print("LUFS length")
+        print(shortLUFS.size - 1)
+        print("mfcc_mean length")
+        print(mfcc_mean.shape[0])
+        print("current_time")
+        print(current_time)
+    """
 
 
     return mfcc_mean
@@ -96,16 +138,18 @@ def MFCC(audio, sampleRate):
 def feature_extraction(audio_path, filename):
 
     audio, sampleRate = sf.read(audio_path + "/" + filename)
+    audio_stereo = audio
     audio = left_channel(audio)
 
 
-    mfcc_mean = MFCC(audio, sampleRate)
+    mfcc_mean = MFCC(audio, sampleRate, audio_stereo)
+
 
 
     feature_dict = {}
     filename_noExt = filename[8:-4]
 
-    print(filename_noExt)
+    #print(filename_noExt)
 
     feature_dict[filename_noExt+"_mfcc_mean"] = mfcc_mean.tolist()
 
@@ -115,7 +159,7 @@ def feature_extraction(audio_path, filename):
         json.dump(feature_dict, outfile)
 
 
-    print(mfcc_mean.shape)
+    #print(mfcc_mean.shape)
 
 
 
@@ -132,5 +176,5 @@ for filename in os.listdir(abs_audio_path):
     if filename.endswith(".wav"):
         feature_extraction(audio_path, filename)
 
-    counter += 1
-    if counter >= 10: break
+    #counter += 1
+    #if counter >= 10: break

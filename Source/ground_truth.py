@@ -56,7 +56,7 @@ def shortTermLoudness(buffer, SR=44100, HS=0.1):
     """
     LoudnessEBUR128 = essentia.standard.LoudnessEBUR128(sampleRate=SR, hopSize=HS)
     shortTermLoudness = LoudnessEBUR128(buffer)[1]
-    return shortTermLoudness
+    return shortTermLoudness[:-1]
 
 
 ########################################################
