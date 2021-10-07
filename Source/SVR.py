@@ -99,14 +99,10 @@ for filename in os.listdir(abs_ground_truth_path):
             unmatched += 1
 
 
-
-
         if rand_features is None:
             rand_features = rng.randn(length, 30)
         else:
             rand_features = np.concatenate([rand_features, rng.randn(length, 30)], axis=0)
-
-
 
 
     ground_truth_pair = np.stack((ground_truth_accREL, ground_truth_voxREL), axis=-1)
@@ -126,7 +122,7 @@ print(ground_truth_pair.shape)
 print(features.shape)
 
 
-quit()
+
 
 
 ############################################################################
@@ -138,7 +134,7 @@ from sklearn.linear_model import LinearRegression
 start = time.time()
 
 reg = LinearRegression()
-setattr(reg, "coef_", (2,30))
+setattr(reg, "coef_", (2,20))
 reg.fit(features, ground_truth_pair)
 
 end = time.time()
@@ -146,9 +142,24 @@ end = time.time()
 print("LinearRegression")
 print(end - start)
 
+y_predict = reg.predict(features[:1000])
 
-y_predict = reg.predict(rng.randn(10, 30))
-print(y_predict)
+
+t = np.arange(1000)
+
+#acc
+#plt.plot(t, ground_truth_pair[:1000].T[0], y_predict[:1000].T[0])
+
+#vox
+#plt.plot(t, ground_truth_pair[:1000].T[1], y_predict[:1000].T[1])
+#plt.show()
+
+
+
+
+
+
+
 
 
 
@@ -169,14 +180,25 @@ chain = RegressorChain(base_estimator=reg, order=[0, 1])
 
 start = time.time()
 
-chain.fit(rand_features, ground_truth_pair)
+chain.fit(features, ground_truth_pair)
+
+
 
 end = time.time()
 
 print("SGDRegressor")
 print(end - start)
 
+y_predict = chain.predict(features[:1000])
 
+t = np.arange(1000)
+
+
+#plt.plot(t, ground_truth_pair[:1000].T[0], y_predict[:1000].T[0]) #acc
+
+#plt.plot(t, ground_truth_pair[:1000].T[1], y_predict[:1000].T[1]) #vox
+
+#plt.show()
 
 
 
@@ -194,12 +216,24 @@ chain = RegressorChain(base_estimator=model, order=[0, 1])
 
 start = time.time()
 
-chain.fit(rand_features, ground_truth_pair)
+chain.fit(features, ground_truth_pair)
 
 end = time.time()
 
 print("XGBRegressor")
 print(end - start)
+
+y_predict = chain.predict(features[:1000])
+
+t = np.arange(1000)
+
+plt.plot(t, ground_truth_pair[:1000].T[0], y_predict[:1000].T[0]) #acc
+
+
+#plt.plot(t, ground_truth_pair[:1000].T[1], y_predict[:1000].T[1]) #vox
+
+plt.show()
+
 
 quit()
 
@@ -213,7 +247,7 @@ chain = RegressorChain(base_estimator=regr, order=[0, 1])
 
 start = time.time()
 
-chain.fit(rand_features, ground_truth_pair)
+chain.fit(features, ground_truth_pair)
 
 end = time.time()
 

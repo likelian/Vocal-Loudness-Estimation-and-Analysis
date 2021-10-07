@@ -106,20 +106,6 @@ def MFCC(audio, sampleRate, audio_stereo):
             mfcc_mean = np.concatenate([mfcc_mean, np.mean(mfccs_T[idx_min:idx_max],axis=0)[:,np.newaxis].T], axis=0)
 
 
-    """
-    shortLUFS = shortTermLoudness(audio_stereo, sampleRate)
-
-    if shortLUFS.size - 1  != mfcc_mean.shape[0]:
-        print("audio length")
-        print(audio_length)
-        print("LUFS length")
-        print(shortLUFS.size - 1)
-        print("mfcc_mean length")
-        print(mfcc_mean.shape[0])
-        print("current_time")
-        print(current_time)
-    """
-
 
     return mfcc_mean
 
