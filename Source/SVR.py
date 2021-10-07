@@ -194,11 +194,11 @@ y_predict = chain.predict(features[:1000])
 t = np.arange(1000)
 
 
-#plt.plot(t, ground_truth_pair[:1000].T[0], y_predict[:1000].T[0]) #acc
+plt.plot(t, ground_truth_pair[:1000].T[0], y_predict[:1000].T[0]) #acc
 
 #plt.plot(t, ground_truth_pair[:1000].T[1], y_predict[:1000].T[1]) #vox
 
-#plt.show()
+plt.show()
 
 
 
@@ -235,12 +235,12 @@ plt.plot(t, ground_truth_pair[:1000].T[0], y_predict[:1000].T[0]) #acc
 plt.show()
 
 
-quit()
-
 ############################################################################
 
 
 #initial the model
+
+"""
 regr = make_pipeline(StandardScaler(), SVR(C=1.0, epsilon=0.2))
 
 chain = RegressorChain(base_estimator=regr, order=[0, 1])
@@ -252,16 +252,30 @@ chain.fit(features, ground_truth_pair)
 end = time.time()
 
 print(end - start)
+"""
 
 
-error = mean_squared_error(ground_truth_array_test, y_pred)
-print(error)
 
 
-#print(np.array([ground_truth_array.T, y_pred.T]))
-t = np.arange(ground_truth_array_test.size)
-plt.plot(t, ground_truth_array_test, y_pred)
+#error = mean_squared_error(ground_truth_array_test, y_pred)
+#print(error)
+
+
+
+
+y_predict = chain.predict(features[:1000])
+
+t = np.arange(1000)
+
+plt.plot(t, ground_truth_pair[:1000].T[0], y_predict[:1000].T[0]) #acc
+
+
+#plt.plot(t, ground_truth_pair[:1000].T[1], y_predict[:1000].T[1]) #vox
+
 plt.show()
+
+
+
 
 
 ############################################################################
