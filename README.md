@@ -88,3 +88,53 @@ To-Do:
 2. dual output/one model or single output/two models?
 3. a few low level features
 4. relative loudness against the mixture loudness?
+
+
+* * *
+
+### 9/30/2021
+
+
+Last Week:
+
+1. Changed the target ground truth from absolute loudness to relative loudness between the mixture loudness
+2. Evaluated the computational cost
+3. Own feature, comb filter?
+
+
+
+To-Do:
+
+1. results on subset of the data for SVD, using standard features
+2. input should be normalized... and include mixture loudness
+2. Normalized output from [0 to -20,30] to [0,1]
+2. Larger dataset and subsample(medlyDB, MusDB)
+3. 1dB step on only one song, to test the training accuracy(no data split, supposes to have very good results)
+
+
+* * *
+
+### 10/7/2021
+
+
+Last Week:
+
+1. No result from linear regression
+2. Good result from XGBregressor with unsplit data
+
+To-Do:
+1. proper metric: absolute error
+2. how different files have different results, maximum error of each file
+3. listen, explain the ground truth and the peaks
+4. some more features
+5. new ideas
+
+* * *
+
+### 10/14/2021
+
+last Week:
+
+1. Bad results with proper data split
+2. more features?
+3. more data?

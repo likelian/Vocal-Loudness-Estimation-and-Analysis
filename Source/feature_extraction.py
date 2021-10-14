@@ -1,31 +1,13 @@
 import soundfile as sf
 import numpy as np
-import librosa
 import json
 import os
 
-
-
-
-
+import librosa
 import sys
 sys.path.append('/usr/local/lib/python3.8/site-packages')
 import essentia
 import essentia.standard
-
-def shortTermLoudness(buffer, SR=44100, HS=0.1):
-    """
-    default sample rate: 44100Hz
-    default hop size: 0.1s
-
-    return: an array of shortTermLoudness in dB
-    """
-    LoudnessEBUR128 = essentia.standard.LoudnessEBUR128(sampleRate=SR, hopSize=HS)
-    shortTermLoudness = LoudnessEBUR128(buffer)[1]
-    return shortTermLoudness
-
-
-
 
 
 
@@ -76,6 +58,12 @@ def block_audio(x,blockSize,hopSize,fs):
 
 
 def MFCC(audio, sampleRate, audio_stereo):
+    """
+    extract the 20 MFFC mean values in 3s window with a hop size of 0.1s
+
+    return:
+        mfcc_mean: a matrix of Nx20
+    """
 
     audio_length = audio.size/sampleRate
 
@@ -106,7 +94,6 @@ def MFCC(audio, sampleRate, audio_stereo):
             mfcc_mean = np.concatenate([mfcc_mean, np.mean(mfccs_T[idx_min:idx_max],axis=0)[:,np.newaxis].T], axis=0)
 
 
-
     return mfcc_mean
 
 
@@ -114,12 +101,41 @@ def MFCC(audio, sampleRate, audio_stereo):
 
 
 
+def shortTermLoudness(buffer, SR=44100, HS=0.1):
+    """
+    default sample rate: 44100Hz
+    default hop size: 0.1s
+
+    return: an array of shortTermLoudness in dB
+    """
+    LoudnessEBUR128 = essentia.standard.LoudnessEBUR128(sampleRate=SR, hopSize=HS)
+    shortTermLoudness = LoudnessEBUR128(buffer)[1][:-1]
+
+    return shortTermLoudness
+
 
 
 ########################################################
 
+#spectral_centroid
 
+########################################################
 
+#spectral_flatness
+
+########################################################
+
+#spectral_rolloffxe
+
+########################################################
+
+#poly_features
+
+########################################################
+
+#zero_crossing_rate
+
+########################################################
 
 def feature_extraction(audio_path, filename):
 
@@ -129,6 +145,7 @@ def feature_extraction(audio_path, filename):
 
 
     mfcc_mean = MFCC(audio, sampleRate, audio_stereo)
+    shortTermLoudness = shortTermLoudness(audio_stereo, sampleRate, HS=0.1)
 
 
 
@@ -138,6 +155,7 @@ def feature_extraction(audio_path, filename):
     #print(filename_noExt)
 
     feature_dict[filename_noExt+"_mfcc_mean"] = mfcc_mean.tolist()
+    feature_dict[filename_noExt+"_shortLUFS"] = shortTermLoudness.tolist()
 
 
     feature_path = "../Features/"
@@ -146,7 +164,6 @@ def feature_extraction(audio_path, filename):
 
 
     #print(mfcc_mean.shape)
-
 
 
 
