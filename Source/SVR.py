@@ -123,8 +123,8 @@ The above data split are ignored
 """
 
 
-sub_X_train = X_train[0:train_size:10]
-sub_y_train = y_train[0:train_size:10]
+sub_X_train = X_train[0:train_size:5]
+sub_y_train = y_train[0:train_size:5]
 
 print("sub_train_size")
 print(sub_X_train.shape)
@@ -132,20 +132,36 @@ print(sub_X_train.shape)
 
 ############################################################################
 
-
+"""
 print("split before 1000 and after 1000")
 sub_X_train = X[1000:]#[0:-1:10]
 sub_y_train = y[1000:]#[0:-1:10]
 X_test = X[:1000]
 y_test = y[:1000]
 print(sub_X_train.shape)
+"""
+
+
+############################################################################
+
+"""
+Normalization
+"""
+
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+scaler.fit(sub_X_train)
+
+sub_X_train = scaler.transform(sub_X_train)
+X_test = scaler.transform(X_test)
+
 
 ############################################################################
 
 """
 SVR
 """
-
 
 regr = make_pipeline(StandardScaler(), SVR(C=1.0, epsilon=0.2))
 
@@ -161,7 +177,6 @@ print("SVR training time")
 print(end - start)
 
 y_pred = chain.predict(X_test)
-
 
 
 #Evaluation
@@ -202,9 +217,10 @@ plt.legend(loc='lower center', ncol=2)
 
 plt.tight_layout(pad=1.0)
 
-#plt.show()
+plt.show()
 
 
+quit()
 
 
 ############################################################################
