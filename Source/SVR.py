@@ -64,10 +64,12 @@ def data_creation():
             f_feature = open(abs_feature_path+"/"+ground_truth_name)
             feature_dict = json.load(f_feature)
 
-            current_features = np.array([])
+            current_features = None
             for key in list(feature_dict.keys()):
-                #needs to change when we have more feature types
-                current_features = np.array(feature_dict[key])
+                if current_features is None:
+                    current_features = np.array(feature_dict[key])
+                else:
+                    current_features = np.concatenate([current_features, np.array(feature_dict[key])], axis=1)
 
 
             if features is None:
@@ -75,6 +77,7 @@ def data_creation():
             else:
                 features = np.concatenate([features, current_features], axis=0)
 
+            print(features.shape)
 
             if length != current_features.shape[0]:
                 print("   ")
@@ -132,14 +135,14 @@ print(sub_X_train.shape)
 
 ############################################################################
 
-"""
+
 print("split before 1000 and after 1000")
 sub_X_train = X[1000:]#[0:-1:10]
 sub_y_train = y[1000:]#[0:-1:10]
 X_test = X[:1000]
 y_test = y[:1000]
 print(sub_X_train.shape)
-"""
+
 
 
 ############################################################################
@@ -220,8 +223,6 @@ plt.tight_layout(pad=1.0)
 plt.show()
 
 
-quit()
-
 
 ############################################################################
 
@@ -288,7 +289,7 @@ plt.legend(loc='lower center', ncol=2)
 
 plt.tight_layout(pad=1.0)
 
-#plt.show()
+plt.show()
 
 
 

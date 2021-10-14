@@ -78,8 +78,6 @@ def MFCC(audio, sampleRate, audio_stereo):
 
     mfccs_T = mfccs.T
 
-    #print(audio_length - np.max(timeInSec))
-
     while current_time <= audio_length -3 + (0/sampleRate):
 
         idx_min = np.searchsorted(timeInSec, current_time, 'right')
@@ -106,10 +104,11 @@ def shortTermLoudness(buffer, SR=44100, HS=0.1):
     default sample rate: 44100Hz
     default hop size: 0.1s
 
-    return: an array of shortTermLoudness in dB
+    return: a Nx1 matrix of shortTermLoudness in dB
     """
     LoudnessEBUR128 = essentia.standard.LoudnessEBUR128(sampleRate=SR, hopSize=HS)
-    shortTermLoudness = LoudnessEBUR128(buffer)[1][:-1]
+    shortTermLoudness = LoudnessEBUR128(buffer)[1][:-1].T[:, np.newaxis]
+
 
     return shortTermLoudness
 
@@ -118,6 +117,46 @@ def shortTermLoudness(buffer, SR=44100, HS=0.1):
 ########################################################
 
 #spectral_centroid
+def extract_spectral_centroid(audio, sampleRate=44100):
+    """
+    default sample rate: 44100Hz
+    default hop size: 0.1s
+
+    return: a Nx1 matrix of spectral_centroid_mean in Hz
+    """
+
+
+    audio_length = audio.size/sampleRate
+
+    hop_size = 512
+    spectral_centroid = librosa.feature.spectral_centroid(audio, sampleRate, hop_length=hop_size)
+
+    timeInSec = np.arange(spectral_centroid.size) * hop_size / sampleRate
+
+
+    spectral_centroid_mean = None
+    current_time = 0.0
+
+    while current_time <= audio_length -3 + (0/sampleRate):
+
+        idx_min = np.searchsorted(timeInSec, current_time, 'right')
+        idx_max = np.searchsorted(timeInSec, current_time+3.0, 'left') - 1
+
+        current_time += 0.1
+
+        if spectral_centroid_mean is None:
+            spectral_centroid_mean = np.mean(spectral_centroid[idx_min:idx_max])
+
+        else:
+            spectral_centroid_mean = np.append(spectral_centroid_mean, np.mean(spectral_centroid[idx_min:idx_max]))
+
+    spectral_centroid_mean = spectral_centroid_mean.T[:, np.newaxis]
+
+
+
+    return spectral_centroid_mean
+
+
 
 ########################################################
 
@@ -145,8 +184,8 @@ def feature_extraction(audio_path, filename):
 
 
     mfcc_mean = MFCC(audio, sampleRate, audio_stereo)
-    shortTermLoudness = shortTermLoudness(audio_stereo, sampleRate, HS=0.1)
-
+    shortTermLUFS = shortTermLoudness(audio_stereo, sampleRate, HS=0.1)
+    spectral_centroid = extract_spectral_centroid(audio, sampleRate)
 
 
     feature_dict = {}
@@ -155,7 +194,8 @@ def feature_extraction(audio_path, filename):
     #print(filename_noExt)
 
     feature_dict[filename_noExt+"_mfcc_mean"] = mfcc_mean.tolist()
-    feature_dict[filename_noExt+"_shortLUFS"] = shortTermLoudness.tolist()
+    feature_dict[filename_noExt+"_shortLUFS"] = shortTermLUFS.tolist()
+    feature_dict[filename_noExt+"spectral_centroid"] = spectral_centroid.tolist()
 
 
     feature_path = "../Features/"
