@@ -1,13 +1,10 @@
-from sklearn.svm import SVR
-from sklearn.pipeline import make_pipeline
-from sklearn.multioutput import RegressorChain
 import numpy as np
 import json
-import matplotlib.pyplot as plt
 import os
-from sklearn.metrics import mean_absolute_error
+from sklearn.pipeline import make_pipeline
+from sklearn.multioutput import RegressorChain
 import time
-
+import helper
 
 
 
@@ -154,8 +151,9 @@ Normalization
 """
 
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 
-scaler = MinMaxScaler()
+scaler = StandardScaler()
 scaler.fit(sub_X_train)
 
 sub_X_train = scaler.transform(sub_X_train)
@@ -177,62 +175,17 @@ print(sub_y_train.shape)
 mean_values = np.mean(sub_y_train, axis=0)
 
 
+print("Mean value: " + str(mean_values))
 
-
-print("Mean value")
-print(mean_values)
 
 y_pred = np.zeros(y_test.shape)
 
 y_pred += mean_values
 
 
+helper.MAE(y_test, y_pred, "Mean Value")
 
-#Evaluation
-
-MAE_acc = mean_absolute_error(y_test.T[0].T, y_pred.T[0].T)
-MAE_vox = mean_absolute_error(y_test.T[1].T, y_pred.T[1].T)
-
-print("Mean_value MAE_acc")
-print(MAE_acc)
-
-print("Mean_value MAE_vox")
-print(MAE_vox)
-
-
-#visualization
-
-t = np.arange(y_pred.shape[0])/10
-
-plt.figure()
-plt.suptitle("Mean_value")
-
-plt.subplot(211)  #acc
-plt.title('Accompaniment Loudness compared to Mixture Loudness')
-plt.ylabel('short-term LUFS in dB')
-plt.xlabel('time in seconds')
-plt.plot(t, y_test.T[0], label="ground truth")
-plt.plot(t, y_pred.T[0], label="prediction")
-plt.legend(loc='lower center', ncol=2)
-
-
-plt.subplot(212)  #vox
-plt.title('Vocal Loudness compared to Mixture Loudness')
-plt.ylabel('short-term LUFS in dB')
-plt.xlabel('time in seconds')
-plt.plot(t, y_test.T[1], label="ground truth")
-plt.plot(t, y_pred.T[1], label="prediction")
-plt.legend(loc='lower center', ncol=2)
-
-plt.tight_layout(pad=1.0)
-
-plt.show()
-
-
-
-#quit()
-
-
+helper.plot(y_test, y_pred, "Mean Value")
 
 
 
@@ -242,6 +195,8 @@ plt.show()
 """
 SVR
 """
+
+from sklearn.svm import SVR
 
 
 regr = make_pipeline(StandardScaler(), SVR(C=1.0, epsilon=0.2))
@@ -254,51 +209,16 @@ chain.fit(sub_X_train, sub_y_train)
 
 end = time.time()
 
-print("SVR training time")
-print(end - start)
+print("SVR training time: " + str(end - start) + "\n")
+
 
 y_pred = chain.predict(X_test)
 
 
-#Evaluation
-
-MAE_acc = mean_absolute_error(y_test.T[0].T, y_pred.T[0].T)
-MAE_vox = mean_absolute_error(y_test.T[1].T, y_pred.T[1].T)
-
-print("SVR MAE_acc")
-print(MAE_acc)
-
-print("SVR MAE_vox")
-print(MAE_vox)
+helper.MAE(y_test, y_pred, "SVR")
 
 
-#visualization
-
-t = np.arange(y_pred.shape[0])/10
-
-plt.figure()
-plt.suptitle("SVR")
-
-plt.subplot(211)  #acc
-plt.title('Accompaniment Loudness compared to Mixture Loudness')
-plt.ylabel('short-term LUFS in dB')
-plt.xlabel('time in seconds')
-plt.plot(t, y_test.T[0], label="ground truth")
-plt.plot(t, y_pred.T[0], label="prediction")
-plt.legend(loc='lower center', ncol=2)
-
-
-plt.subplot(212)  #vox
-plt.title('Vocal Loudness compared to Mixture Loudness')
-plt.ylabel('short-term LUFS in dB')
-plt.xlabel('time in seconds')
-plt.plot(t, y_test.T[1], label="ground truth")
-plt.plot(t, y_pred.T[1], label="prediction")
-plt.legend(loc='lower center', ncol=2)
-
-plt.tight_layout(pad=1.0)
-
-plt.show()
+helper.plot(y_test, y_pred, "SVR")
 
 
 
@@ -321,59 +241,23 @@ chain.fit(sub_X_train, sub_y_train)
 
 end = time.time()
 
-print("XGBRegressor")
-print(end - start)
+print("XGBoost training time: " + str(end - start) + "\n")
 
 
 y_pred = chain.predict(X_test)
 
 
+helper.MAE(y_test, y_pred, "XGBoost")
 
-#Evaluation
-
-MAE_acc = mean_absolute_error(y_test.T[0].T, y_pred.T[0].T)
-MAE_vox = mean_absolute_error(y_test.T[1].T, y_pred.T[1].T)
-
-print("XGBoost MAE_acc")
-print(MAE_acc)
-
-print("XGBoost SVR MAE_vox")
-print(MAE_vox)
-
-
-#visualization
-
-t = np.arange(y_pred.shape[0])/10
-
-plt.figure()
-plt.suptitle("XGBoost")
-
-plt.subplot(211)  #acc
-plt.title('Accompaniment Loudness compared to Mixture Loudness')
-plt.ylabel('short-term LUFS in dB')
-plt.xlabel('time in seconds')
-plt.plot(t, y_test.T[0], label="ground truth")
-plt.plot(t, y_pred.T[0], label="prediction")
-plt.legend(loc='lower center', ncol=2)
-
-
-plt.subplot(212)  #vox
-plt.title('Vocal Loudness compared to Mixture Loudness')
-plt.ylabel('short-term LUFS in dB')
-plt.xlabel('time in seconds')
-plt.plot(t, y_test.T[1], label="ground truth")
-plt.plot(t, y_pred.T[1], label="prediction")
-plt.legend(loc='lower center', ncol=2)
-
-plt.tight_layout(pad=1.0)
-
-plt.show()
+helper.plot(y_test, y_pred, "XGBoost")
 
 
 
 ############################################################################
 
-#SGDRegressor
+"""
+SGDRegressor
+"""
 
 from sklearn.linear_model import SGDRegressor
 
@@ -386,60 +270,28 @@ start = time.time()
 
 chain.fit(sub_X_train, sub_y_train)
 
-
 end = time.time()
 
-print("SGDRegressor")
-print(end - start)
+print("SGDRegressor training time: " + str(end - start) + "\n")
+
+
 
 y_pred = chain.predict(X_test)
 
 
 
-#Evaluation
-
-MAE_acc = mean_absolute_error(y_test.T[0].T, y_pred.T[0].T)
-MAE_vox = mean_absolute_error(y_test.T[1].T, y_pred.T[1].T)
-
-print("SGDRegressor MAE_acc")
-print(MAE_acc)
-
-print("SGDRegressor SVR MAE_vox")
-print(MAE_vox)
+helper.MAE(y_test, y_pred, "SGDRegressor")
 
 
-#visualization
-
-t = np.arange(y_pred.shape[0])/10
-
-plt.figure()
-plt.suptitle("SGD Linear Regression")
-
-plt.subplot(211)  #acc
-plt.title('Accompaniment Loudness compared to Mixture Loudness')
-plt.ylabel('short-term LUFS in dB')
-plt.xlabel('time in seconds')
-plt.plot(t, y_test.T[0], label="ground truth")
-plt.plot(t, y_pred.T[0], label="prediction")
-plt.legend(loc='lower center', ncol=2)
-
-
-plt.subplot(212)  #vox
-plt.title('Vocal Loudness compared to Mixture Loudness')
-plt.ylabel('short-term LUFS in dB')
-plt.xlabel('time in seconds')
-plt.plot(t, y_test.T[1], label="ground truth")
-plt.plot(t, y_pred.T[1], label="prediction")
-plt.legend(loc='lower center', ncol=2)
-
-plt.tight_layout(pad=1.0)
-
-plt.show()
+helper.plot(y_test, y_pred, "SGDRegressor")
 
 
 quit()
 
 
+
+
+"""
 ############################################################################
 
 #Linear Regression
@@ -469,3 +321,4 @@ t = np.arange(1000)
 
 
 #plt.show()
+"""
