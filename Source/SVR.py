@@ -1,7 +1,6 @@
 from sklearn.svm import SVR
 from sklearn.pipeline import make_pipeline
 from sklearn.multioutput import RegressorChain
-from sklearn.preprocessing import StandardScaler
 import numpy as np
 import json
 import matplotlib.pyplot as plt
@@ -154,10 +153,8 @@ print(sub_X_train.shape)
 Normalization
 """
 
-#from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 
-scaler = StandardScaler()
 scaler = MinMaxScaler()
 scaler.fit(sub_X_train)
 
