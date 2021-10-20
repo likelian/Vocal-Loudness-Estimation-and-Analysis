@@ -77,8 +77,6 @@ def data_creation():
             else:
                 features = np.concatenate([features, current_features], axis=0)
 
-            print(features.shape)
-
             if length != current_features.shape[0]:
                 print("   ")
                 print(filename)
@@ -89,6 +87,10 @@ def data_creation():
                 unmatched += 1
 
         ground_truth_pair = np.stack((ground_truth_accREL, ground_truth_voxREL), axis=-1)
+
+
+    features = np.nan_to_num(features)
+    ground_truth_pair = np.nan_to_num(ground_truth_pair)
 
     print("data created")
 
@@ -136,9 +138,10 @@ print(sub_X_train.shape)
 ############################################################################
 
 
+
 print("split before 1000 and after 1000")
-sub_X_train = X[1000:]#[0:-1:10]
-sub_y_train = y[1000:]#[0:-1:10]
+sub_X_train = X[1000:][0:-1:10]
+sub_y_train = y[1000:][0:-1:10]
 X_test = X[:1000]
 y_test = y[:1000]
 print(sub_X_train.shape)
@@ -151,9 +154,11 @@ print(sub_X_train.shape)
 Normalization
 """
 
-from sklearn.preprocessing import StandardScaler
+#from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 
 scaler = StandardScaler()
+scaler = MinMaxScaler()
 scaler.fit(sub_X_train)
 
 sub_X_train = scaler.transform(sub_X_train)
@@ -163,8 +168,84 @@ X_test = scaler.transform(X_test)
 ############################################################################
 
 """
+
+Use the mean values of the training set groud truth as the low bound result
+
+"""
+
+print(sub_y_train.shape)
+
+
+
+mean_values = np.mean(sub_y_train, axis=0)
+
+
+
+
+print("Mean value")
+print(mean_values)
+
+y_pred = np.zeros(y_test.shape)
+
+y_pred += mean_values
+
+
+
+#Evaluation
+
+MAE_acc = mean_absolute_error(y_test.T[0].T, y_pred.T[0].T)
+MAE_vox = mean_absolute_error(y_test.T[1].T, y_pred.T[1].T)
+
+print("Mean_value MAE_acc")
+print(MAE_acc)
+
+print("Mean_value MAE_vox")
+print(MAE_vox)
+
+
+#visualization
+
+t = np.arange(y_pred.shape[0])/10
+
+plt.figure()
+plt.suptitle("Mean_value")
+
+plt.subplot(211)  #acc
+plt.title('Accompaniment Loudness compared to Mixture Loudness')
+plt.ylabel('short-term LUFS in dB')
+plt.xlabel('time in seconds')
+plt.plot(t, y_test.T[0], label="ground truth")
+plt.plot(t, y_pred.T[0], label="prediction")
+plt.legend(loc='lower center', ncol=2)
+
+
+plt.subplot(212)  #vox
+plt.title('Vocal Loudness compared to Mixture Loudness')
+plt.ylabel('short-term LUFS in dB')
+plt.xlabel('time in seconds')
+plt.plot(t, y_test.T[1], label="ground truth")
+plt.plot(t, y_pred.T[1], label="prediction")
+plt.legend(loc='lower center', ncol=2)
+
+plt.tight_layout(pad=1.0)
+
+plt.show()
+
+
+
+#quit()
+
+
+
+
+
+############################################################################
+
+
+"""
 SVR
 """
+
 
 regr = make_pipeline(StandardScaler(), SVR(C=1.0, epsilon=0.2))
 
@@ -206,7 +287,7 @@ plt.title('Accompaniment Loudness compared to Mixture Loudness')
 plt.ylabel('short-term LUFS in dB')
 plt.xlabel('time in seconds')
 plt.plot(t, y_test.T[0], label="ground truth")
-plt.plot(t, y_pred.T[0], label="predction")
+plt.plot(t, y_pred.T[0], label="prediction")
 plt.legend(loc='lower center', ncol=2)
 
 
@@ -215,7 +296,7 @@ plt.title('Vocal Loudness compared to Mixture Loudness')
 plt.ylabel('short-term LUFS in dB')
 plt.xlabel('time in seconds')
 plt.plot(t, y_test.T[1], label="ground truth")
-plt.plot(t, y_pred.T[1], label="predction")
+plt.plot(t, y_pred.T[1], label="prediction")
 plt.legend(loc='lower center', ncol=2)
 
 plt.tight_layout(pad=1.0)
@@ -275,7 +356,7 @@ plt.title('Accompaniment Loudness compared to Mixture Loudness')
 plt.ylabel('short-term LUFS in dB')
 plt.xlabel('time in seconds')
 plt.plot(t, y_test.T[0], label="ground truth")
-plt.plot(t, y_pred.T[0], label="predction")
+plt.plot(t, y_pred.T[0], label="prediction")
 plt.legend(loc='lower center', ncol=2)
 
 
@@ -284,7 +365,7 @@ plt.title('Vocal Loudness compared to Mixture Loudness')
 plt.ylabel('short-term LUFS in dB')
 plt.xlabel('time in seconds')
 plt.plot(t, y_test.T[1], label="ground truth")
-plt.plot(t, y_pred.T[1], label="predction")
+plt.plot(t, y_pred.T[1], label="prediction")
 plt.legend(loc='lower center', ncol=2)
 
 plt.tight_layout(pad=1.0)
@@ -342,7 +423,7 @@ plt.title('Accompaniment Loudness compared to Mixture Loudness')
 plt.ylabel('short-term LUFS in dB')
 plt.xlabel('time in seconds')
 plt.plot(t, y_test.T[0], label="ground truth")
-plt.plot(t, y_pred.T[0], label="predction")
+plt.plot(t, y_pred.T[0], label="prediction")
 plt.legend(loc='lower center', ncol=2)
 
 
@@ -351,7 +432,7 @@ plt.title('Vocal Loudness compared to Mixture Loudness')
 plt.ylabel('short-term LUFS in dB')
 plt.xlabel('time in seconds')
 plt.plot(t, y_test.T[1], label="ground truth")
-plt.plot(t, y_pred.T[1], label="predction")
+plt.plot(t, y_pred.T[1], label="prediction")
 plt.legend(loc='lower center', ncol=2)
 
 plt.tight_layout(pad=1.0)
