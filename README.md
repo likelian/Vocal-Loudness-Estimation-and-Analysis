@@ -138,3 +138,28 @@ last Week:
 1. Bad results with proper data split
 2. more features?
 3. more data?
+
+
+To-Do:
+
+1. Break the chain?
+2. Max error
+3. dataset distribution of mix ratio
+4. pipeline
+5. take a look at extreme cases
+6. a fake prediction from the mean value of the training set, the worst case
+
+
+* * *
+
+### 10/21/2021
+
+last Week:
+
+1. pipeline finshied, including ground truth generation (for MIR-1K dataset format only, but easy to modify), feature extraction, and machine learning models.
+2. Created a mean value predictor, and the result is not bad...
+
+Max error
+dataset distribution of mix ratio
+different normalization?
+Break the chain?
