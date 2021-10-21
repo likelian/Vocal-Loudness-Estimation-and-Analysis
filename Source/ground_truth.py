@@ -10,7 +10,7 @@ import os
 
 ########################################################
 
-def ground_truth(audio_path, audio_path, ground_truth_path, mixture_path, filename):
+def ground_truth(audio_path, ground_truth_path, mixture_path, filename):
 
     data, sampleRate = sf.read(audio_path + "/" + filename)
 

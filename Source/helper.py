@@ -25,7 +25,7 @@ def MAE(y_test, y_pred, Regressor = "Regressors"):
 
 
 
-def plot(y_test, y_pred, subtitle="subtitle"):
+def plot(y_test, y_pred, subtitle="subtitle", show_plot=None):
 
     """
     plot the two predicted and groud truth loudness
@@ -55,4 +55,8 @@ def plot(y_test, y_pred, subtitle="subtitle"):
 
     plt.tight_layout(pad=1.0)
 
-    plt.show()
+
+    plt.savefig("../Plots/" + subtitle + '.png')
+
+    if show_plot:
+        plt.show()

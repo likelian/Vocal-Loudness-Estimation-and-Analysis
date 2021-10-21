@@ -181,9 +181,9 @@ y_pred = np.zeros(y_test.shape)
 y_pred += mean_values
 
 
-helper.MAE(y_test, y_pred, "Mean Value")
+helper.MAE(y_test, y_pred, "Mean_value")
 
-helper.plot(y_test, y_pred, "Mean Value")
+helper.plot(y_test, y_pred, "Mean_value")
 
 
 
