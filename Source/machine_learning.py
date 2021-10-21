@@ -120,25 +120,30 @@ print(test_size)
 """
 The above data split are ignored
 """
-
+"""
 
 sub_X_train = X_train[0:train_size:5]
 sub_y_train = y_train[0:train_size:5]
 
 print("sub_train_size")
 print(sub_X_train.shape)
-
+"""
 
 ############################################################################
 
 
+"""
+The above data split are ignored
+"""
 
+print("The above data split are ignored")
 print("split before 1000 and after 1000")
 sub_X_train = X[1000:][0:-1:10]
 sub_y_train = y[1000:][0:-1:10]
 X_test = X[:1000]
 y_test = y[:1000]
-print(sub_X_train.shape)
+print("sub_X_train" + str(sub_X_train.shape))
+print("y_test" + str(y_test.shape))
 
 
 
@@ -151,7 +156,14 @@ Normalization
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
 
+#print("MinMaxScaler")
+#scaler = MinMaxScaler()
+
+print("StandardScaler")
 scaler = StandardScaler()
+
+
+
 scaler.fit(sub_X_train)
 
 sub_X_train = scaler.transform(sub_X_train)
@@ -161,13 +173,10 @@ X_test = scaler.transform(X_test)
 ############################################################################
 
 """
+Mean value predictor
 
 Use the mean values of the training set groud truth as the low bound result
-
 """
-
-print(sub_y_train.shape)
-
 
 
 mean_values = np.mean(sub_y_train, axis=0)
@@ -182,6 +191,8 @@ y_pred += mean_values
 
 
 helper.MAE(y_test, y_pred, "Mean_value")
+helper.ME(y_test, y_pred, "Mean_value")
+
 
 helper.plot(y_test, y_pred, "Mean_value")
 
@@ -197,7 +208,12 @@ SVR
 from sklearn.svm import SVR
 
 
-regr = make_pipeline(StandardScaler(), SVR(C=1.0, epsilon=0.2))
+
+"""
+#SVR_chained_acc_first
+"""
+
+regr = make_pipeline(SVR(C=1.0, epsilon=0.2))
 
 chain = RegressorChain(base_estimator=regr, order=[0, 1])
 
@@ -213,10 +229,132 @@ print("SVR training time: " + str(end - start) + "\n")
 y_pred = chain.predict(X_test)
 
 
-helper.MAE(y_test, y_pred, "SVR")
+helper.MAE(y_test, y_pred, "SVR_chained_acc_first")
+helper.ME(y_test, y_pred, "SVR_chained_acc_first")
 
 
-helper.plot(y_test, y_pred, "SVR")
+helper.plot(y_test, y_pred, "SVR_chained_acc_first")
+
+
+"""
+
+
+"""
+#SVR_chained_vox_first
+"""
+
+regr = make_pipeline(SVR(C=1.0, epsilon=0.2))
+
+chain = RegressorChain(base_estimator=regr, order=[1, 0])
+
+start = time.time()
+
+chain.fit(sub_X_train, sub_y_train)
+
+end = time.time()
+
+print("SVR training time: " + str(end - start) + "\n")
+
+
+y_pred = chain.predict(X_test)
+
+
+helper.MAE(y_test, y_pred, "SVR_chained_vox_first")
+helper.ME(y_test, y_pred, "SVR_chained_vox_first")
+
+
+helper.plot(y_test, y_pred, "SVR_chained_vox_first")
+
+
+
+
+
+
+"""
+#SVR_unchained
+"""
+
+regr_acc = make_pipeline(SVR(C=1.0, epsilon=0.2))
+regr_vox = make_pipeline(SVR(C=1.0, epsilon=0.2))
+
+
+start = time.time()
+
+regr_acc.fit(sub_X_train, sub_y_train.T[0].T)
+regr_vox.fit(sub_X_train, sub_y_train.T[1].T)
+
+end = time.time()
+
+
+print("SVR training time: " + str(end - start) + "\n")
+
+
+y_pred_acc = regr_acc.predict(X_test)
+y_pred_vox = regr_vox.predict(X_test)
+
+
+y_pred = np.vstack([y_pred_acc, y_pred_vox]).T
+
+
+helper.MAE(y_test, y_pred, "SVR_unchained")
+helper.ME(y_test, y_pred, "SVR_unchained")
+
+
+helper.plot(y_test, y_pred, "SVR_unchained")
+
+
+
+
+"""
+
+
+
+
+
+#regr_acc = make_pipeline(SVR(C=1.0, epsilon=0.2))
+#regr_vox = make_pipeline(SVR(C=1.0, epsilon=0.2))
+
+
+regr = make_pipeline(SVR(C=1.0, epsilon=0.2))
+regr_iter = make_pipeline(SVR(C=1.0, epsilon=0.2))
+
+chain = RegressorChain(base_estimator=regr, order=[0, 1])
+chain_iter_1 = RegressorChain(base_estimator=regr, order=[0, 1])
+
+
+
+start = time.time()
+
+chain.fit(sub_X_train, sub_y_train)
+
+chain_pred = chain.predict(sub_X_train)
+
+new_sub_X_train = np.concatenate((sub_X_train, chain_pred), axis=1)
+
+chain_iter_1.fit(new_sub_X_train, sub_y_train)
+
+
+end = time.time()
+
+
+
+print("SVR training time: " + str(end - start) + "\n")
+
+
+y_pred = chain.predict(X_test)
+new_X_test = np.concatenate((X_test, y_pred), axis=1)
+y_pred_iter_1 = chain_iter_1.predict(new_X_test)
+
+
+helper.MAE(y_test, y_pred_iter_1, "SVR_chain_iter_1")
+helper.ME(y_test, y_pred_iter_1, "SVR_chain_iter_1")
+
+
+helper.plot(y_test, y_pred_iter_1, "SVR_chain_iter_1")
+
+
+
+
 
 
 
@@ -246,6 +384,8 @@ y_pred = chain.predict(X_test)
 
 
 helper.MAE(y_test, y_pred, "XGBoost")
+helper.ME(y_test, y_pred, "XGBoost")
+
 
 helper.plot(y_test, y_pred, "XGBoost")
 
@@ -260,7 +400,7 @@ SGDRegressor
 from sklearn.linear_model import SGDRegressor
 
 
-reg = make_pipeline(StandardScaler(), SGDRegressor(max_iter=10000, tol=1e-3))
+reg = make_pipeline(SGDRegressor(max_iter=10000, tol=1e-3))
 
 chain = RegressorChain(base_estimator=reg, order=[0, 1])
 
@@ -279,6 +419,7 @@ y_pred = chain.predict(X_test)
 
 
 helper.MAE(y_test, y_pred, "SGDRegressor")
+helper.ME(y_test, y_pred, "SGDRegressor")
 
 
 helper.plot(y_test, y_pred, "SGDRegressor")

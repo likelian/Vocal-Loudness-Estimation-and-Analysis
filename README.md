@@ -158,8 +158,13 @@ last Week:
 
 1. pipeline finshied, including ground truth generation (for MIR-1K dataset format only, but easy to modify), feature extraction, and machine learning models.
 2. Created a mean value predictor, and the result is not bad...
+3. Max error
+4. Under the same circumstance, z-score(StandardScaler) produces better results.
+5. Under the same circumstance, chained the accompaniment before the vocal produces better results in all 4 metrics.
+6. Unchained individual models are better than vox first, worse than acc first.
+7. Double chaining gets the worse reuslts.
 
-Max error
+
 dataset distribution of mix ratio
-different normalization?
-Break the chain?
+
+with or without some features

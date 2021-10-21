@@ -1,9 +1,7 @@
 import numpy as np
-#import json
 import matplotlib.pyplot as plt
-#import os
 from sklearn.metrics import mean_absolute_error
-#import time
+from sklearn.metrics import max_error
 
 
 
@@ -22,6 +20,25 @@ def MAE(y_test, y_pred, Regressor = "Regressors"):
     print(" ")
 
     return MAE_acc, MAE_vox
+
+
+def ME(y_test, y_pred, Regressor = "Regressors"):
+    """
+    Compute and print the max_error
+
+    return: (MAE_acc, MAE_vox)
+
+    """
+    ME_acc = max_error(y_test.T[0].T, y_pred.T[0].T)
+    ME_vox = max_error(y_test.T[1].T, y_pred.T[1].T)
+
+    print(Regressor + " ME_acc: " + str(ME_acc))
+    print(Regressor + " ME_vox: " + str(ME_vox))
+    print(" ")
+
+    return ME_acc, ME_vox
+
+
 
 
 
