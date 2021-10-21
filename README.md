@@ -164,27 +164,31 @@ last Week:
 6. Unchained individual models are better than vox first, worse than acc first.
 7. Double chaining gets the worse reuslts.
 8. Computed the mean and std of the ground truth
-9. Plot the historgram of the ground truth
+9. Plot the histogram of the ground truth
+10. Decreasing the training set size can improve the results of SVM, with fluctuation.
+
 
 
 Best results for a small training set:
 
-sub_X_train(7582, 22)
+split before 1000 and after 1000
+sub_X_train(1264, 22)
 y_test(1000, 2)
-
 StandardScaler
+Mean value: [-3.1906353  -3.32109234]
+Mean_value MAE_acc: 0.7575401288346398
+Mean_value MAE_vox: 0.8486054807493958
 
-Mean_value MAE_acc: 0.7574837347034161
-Mean_value MAE_vox: 0.8394571869894687
+Mean_value ME_acc: 4.2533477740951735
+Mean_value ME_vox: 4.767215997357912
 
-SVR_chained_acc_first MAE_acc: 0.7260189782684338
-SVR_chained_acc_first MAE_vox: 0.6695243199249123
+SVR training time: 0.19724297523498535
 
+SVR_chained_acc_first MAE_acc: 0.6347617732628478
+SVR_chained_acc_first MAE_vox: 0.6097516983387918
 
-
-mean_individual_loudness(acc, vox): [-3.18850703 -3.29631536]
-
-std_individual_loudness(acc, vox): [1.15713937 2.60673494]
+SVR_chained_acc_first ME_acc: 3.4882807540130503
+SVR_chained_acc_first ME_vox: 4.5103523891910955
 
 
 

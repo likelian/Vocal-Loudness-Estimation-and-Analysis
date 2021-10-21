@@ -155,12 +155,6 @@ plt.show()
 """
 
 
-
-############################################################################
-
-
-quit()
-
 ############################################################################
 
 
@@ -204,8 +198,8 @@ The above data split are ignored
 
 print("The above data split are ignored")
 print("split before 1000 and after 1000")
-sub_X_train = X[1000:][0:-1:10]
-sub_y_train = y[1000:][0:-1:10]
+sub_X_train = X[1000:][0:-1:60]
+sub_y_train = y[1000:][0:-1:60]
 X_test = X[:1000]
 y_test = y[:1000]
 print("sub_X_train" + str(sub_X_train.shape))
