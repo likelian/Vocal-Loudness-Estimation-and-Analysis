@@ -156,15 +156,36 @@ To-Do:
 
 last Week:
 
-1. pipeline finshied, including ground truth generation (for MIR-1K dataset format only, but easy to modify), feature extraction, and machine learning models.
+1. pipeline finishied, including ground truth generation (for MIR-1K dataset format only, but easy to modify), feature extraction, and machine learning models.
 2. Created a mean value predictor, and the result is not bad...
 3. Max error
 4. Under the same circumstance, z-score(StandardScaler) produces better results.
 5. Under the same circumstance, chained the accompaniment before the vocal produces better results in all 4 metrics.
 6. Unchained individual models are better than vox first, worse than acc first.
 7. Double chaining gets the worse reuslts.
+8. Computed the mean and std of the ground truth
+9. Plot the historgram of the ground truth
 
 
-dataset distribution of mix ratio
+Best results for a small training set:
+
+sub_X_train(7582, 22)
+y_test(1000, 2)
+
+StandardScaler
+
+Mean_value MAE_acc: 0.7574837347034161
+Mean_value MAE_vox: 0.8394571869894687
+
+SVR_chained_acc_first MAE_acc: 0.7260189782684338
+SVR_chained_acc_first MAE_vox: 0.6695243199249123
+
+
+
+mean_individual_loudness(acc, vox): [-3.18850703 -3.29631536]
+
+std_individual_loudness(acc, vox): [1.15713937 2.60673494]
+
+
 
 with or without some features

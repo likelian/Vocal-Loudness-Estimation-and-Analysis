@@ -95,6 +95,72 @@ def data_creation():
 
 X, y = data_creation()
 
+
+############################################################################
+
+
+"""
+Compute the mean and std of the ground truth
+"""
+
+"""
+mean_individual_loudness = np.mean(y, axis=0)
+std_individual_loudness = np.std(y, axis=0)
+
+print("mean_individual_loudness(acc, vox): " + str(mean_individual_loudness))
+print("std_individual_loudness(acc, vox): " + str(std_individual_loudness))
+"""
+
+
+############################################################################
+
+
+"""
+Plot the histogram of the ground truth
+"""
+
+"""
+import matplotlib
+import matplotlib.pyplot as plt
+
+
+fig, ax = plt.subplots()
+
+# the histogram of the data
+
+n, bins, patches = ax.hist(y.T[0], bins='auto', density=1)
+
+ax.set_xlabel('Loudness')
+ax.set_ylabel('Probability density')
+ax.set_title('Histogram of Accompaniment Loudness')
+
+# Tweak spacing to prevent clipping of ylabel
+fig.tight_layout()
+plt.show()
+
+
+fig, ax = plt.subplots()
+
+# the histogram of the data
+
+n, bins, patches = ax.hist(y.T[1], bins='auto', density=1)
+
+ax.set_xlabel('Loudness')
+ax.set_ylabel('Probability density')
+ax.set_title('Histogram of Vocal Loudness')
+
+# Tweak spacing to prevent clipping of ylabel
+fig.tight_layout()
+plt.show()
+"""
+
+
+
+############################################################################
+
+
+quit()
+
 ############################################################################
 
 
@@ -236,6 +302,9 @@ helper.ME(y_test, y_pred, "SVR_chained_acc_first")
 helper.plot(y_test, y_pred, "SVR_chained_acc_first")
 
 
+
+
+
 """
 
 
@@ -309,7 +378,11 @@ helper.plot(y_test, y_pred, "SVR_unchained")
 
 
 
+"""
 
+"""
+#Double Chained
+"""
 
 #regr_acc = make_pipeline(SVR(C=1.0, epsilon=0.2))
 #regr_vox = make_pipeline(SVR(C=1.0, epsilon=0.2))
@@ -351,7 +424,7 @@ helper.ME(y_test, y_pred_iter_1, "SVR_chain_iter_1")
 
 
 helper.plot(y_test, y_pred_iter_1, "SVR_chain_iter_1")
-
+"""
 
 
 
