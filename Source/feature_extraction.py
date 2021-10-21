@@ -20,39 +20,6 @@ def left_channel(audio):
     return audio
 
 
-def block_audio(x,blockSize,hopSize,fs):
-    """
-    for blocking the input audio signal into overlapping blocks
-
-    returns:
-        a matrix xb (dimension NumOfBlocks X blockSize)
-        a vector timeInSec (dimension NumOfBlocks)
-
-    timeInSec will refer to the start time of each block.
-    """
-    timeInSample = np.array([])
-    currentTimeInSample = 0
-    xb = None
-
-    while currentTimeInSample < x.size:
-        if currentTimeInSample+blockSize > x.size:
-
-            newBlock = np.append(x[currentTimeInSample:], np.zeros(blockSize-(x.size-currentTimeInSample)))[np.newaxis, :]
-        else:
-            newBlock = x[currentTimeInSample : currentTimeInSample+blockSize][np.newaxis, :]
-
-        if xb is not None:
-            xb = np.concatenate((xb, newBlock), axis=0)
-        else:
-            xb = newBlock
-
-        timeInSample = np.append(timeInSample, currentTimeInSample)
-        currentTimeInSample += hopSize
-
-    timeInSec = timeInSample / fs
-    return xb, timeInSec
-
-
 ########################################################
 
 
@@ -176,7 +143,7 @@ def extract_spectral_centroid(audio, sampleRate=44100):
 
 ########################################################
 
-def feature_extraction(audio_path, filename):
+def extract_features(audio_path, filename, feature_path = "../Features/"):
 
     audio, sampleRate = sf.read(audio_path + "/" + filename)
     audio_stereo = audio
@@ -210,14 +177,12 @@ def feature_extraction(audio_path, filename):
 
 ########################################################
 
-audio_path = "../Audio/MIR-1K_mixture"
 
-abs_audio_path = os.path.abspath(audio_path)
+def feature_extraction(audio_path = "../Audio/MIR-1K_mixture", feature_path = "../Features/"):
 
-counter = 0
-for filename in os.listdir(abs_audio_path):
-    if filename.endswith(".wav"):
-        feature_extraction(audio_path, filename)
+    abs_audio_path = os.path.abspath(audio_path)
 
-    #counter += 1
-    #if counter >= 10: break
+
+    for filename in os.listdir(abs_audio_path):
+        if filename.endswith(".wav"):
+            extract_features(audio_path, filename, feature_path)

@@ -10,7 +10,7 @@ import os
 
 ########################################################
 
-def ground_truth(audio_path, filename):
+def ground_truth(audio_path, audio_path, ground_truth_path, mixture_path, filename):
 
     data, sampleRate = sf.read(audio_path + "/" + filename)
 
@@ -61,13 +61,14 @@ def shortTermLoudness(buffer, SR=44100, HS=0.1):
 
 ########################################################
 
+def ground_truth_generation(audio_path = "../Audio/MIR-1K",
+                            ground_truth_path = "../Ground_truth/",
+                            mixture_path = "../Audio/MIR-1K_mixture"):
 
-audio_path = "../Audio/MIR-1K"
+    abs_audio_path = os.path.abspath(audio_path)
 
-abs_audio_path = os.path.abspath(audio_path)
-
-for filename in os.listdir(abs_audio_path):
-    if filename.endswith(".wav"):
-        ground_truth(audio_path, filename)
+    for filename in os.listdir(abs_audio_path):
+        if filename.endswith(".wav"):
+            ground_truth(audio_path, ground_truth_path, mixture_path, filename)
 
 ########################################################
