@@ -204,3 +204,7 @@ To-Do:
 
 
 Last week:
+
+
+1. Shuffle the resulting plots(Learning is happening, but outside of (-2, -4)db range is not predicted well)
+2.

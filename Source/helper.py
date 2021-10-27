@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import max_error
+import random
 
 
 
@@ -20,6 +21,7 @@ def MAE(y_test, y_pred, Regressor = "Regressors"):
     print(" ")
 
     return MAE_acc, MAE_vox
+
 
 
 def ME(y_test, y_pred, Regressor = "Regressors"):
@@ -42,16 +44,25 @@ def ME(y_test, y_pred, Regressor = "Regressors"):
 
 
 
-def plot(y_test, y_pred, subtitle="subtitle", show_plot=None):
+def plot(y_test, y_pred, subtitle="subtitle", show_plot=False, shuffle=False):
 
     """
     plot the two predicted and groud truth loudness
     """
 
+
+    if shuffle:
+        stack = np.concatenate([y_test, y_pred], axis=1)
+        np.random.shuffle(stack)
+        y_test = stack.T[:2].T
+        y_pred = stack.T[2:].T
+
+
     t = np.arange(y_pred.shape[0])/10
 
     plt.figure()
     plt.suptitle(subtitle)
+
 
     plt.subplot(211)  #acc
     plt.title('Accompaniment Loudness compared to Mixture Loudness')
