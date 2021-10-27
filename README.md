@@ -191,5 +191,16 @@ SVR_chained_acc_first ME_acc: 3.4882807540130503
 SVR_chained_acc_first ME_vox: 4.5103523891910955
 
 
+To-Do:
 
-with or without some features
+1. mean absolute error, max error and error histogram of each file
+2. make it uniform distribution (data augmentation) (cut off at where we don’t hear anymore in the mix, or just too rare)
+3. shuffle the results plot randomly, see why it is so smooth
+4. two future directions: more parameter to extract, or large analysis
+
+* * *
+
+### 10/27/2021
+
+
+Last week:
