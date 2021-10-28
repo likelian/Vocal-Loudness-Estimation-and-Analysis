@@ -5,7 +5,6 @@ from sklearn.metrics import max_error
 import random
 
 
-
 def MAE(y_test, y_pred, Regressor = "Regressors"):
     """
     Compute and print the mean_absolute_error
@@ -19,6 +18,8 @@ def MAE(y_test, y_pred, Regressor = "Regressors"):
     print(Regressor + " MAE_acc: " + str(MAE_acc))
     print(Regressor + " MAE_vox: " + str(MAE_vox))
     print(" ")
+
+
 
     return MAE_acc, MAE_vox
 
@@ -39,6 +40,51 @@ def ME(y_test, y_pred, Regressor = "Regressors"):
     print(" ")
 
     return ME_acc, ME_vox
+
+
+
+
+def plot_histogram(y_test, y_pred, subtitle="subtitle", show_plot=False):
+
+    """
+    Plot the histogram of the error
+    """
+
+    abs_error = np.abs(y_test - y_pred)
+
+
+
+    plt.figure()
+    plt.suptitle(subtitle+"_error_histogram")
+
+    ax = plt.subplot(211)  #acc
+
+    n, bins, patches = ax.hist(abs_error.T[0], bins=100, density=1)
+
+    ax.set_xlabel('Loudness')
+    ax.set_ylabel('Probability density')
+    ax.set_title('Histogram of Accompaniment Loudness Error')
+
+
+    ax = plt.subplot(212)  #vox
+
+
+    n, bins, patches = ax.hist(abs_error.T[1], bins=100, density=1)
+
+    ax.set_xlabel('Loudness')
+    ax.set_ylabel('Probability density')
+    ax.set_title('Histogram of Vocal Loudness Error')
+
+
+
+    plt.tight_layout(pad=1.0)
+
+
+    plt.savefig("../Plots/New/" + subtitle + "_histogram" + '.png')
+
+    if show_plot:
+        plt.show()
+
 
 
 

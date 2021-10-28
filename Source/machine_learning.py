@@ -125,45 +125,44 @@ print("std_individual_loudness(acc, vox): " + str(std_individual_loudness))
 
 ############################################################################
 
-
-"""
-Plot the histogram of the ground truth
-"""
-
-"""
 import matplotlib
 import matplotlib.pyplot as plt
 
+def plot_histogram_ground_truth(y):
 
-fig, ax = plt.subplots()
+    """
+    Plot the histogram of the ground truth
+    """
 
-# the histogram of the data
+    fig, ax = plt.subplots()
 
-n, bins, patches = ax.hist(y.T[0], bins='auto', density=1)
+    # the histogram of the data
 
-ax.set_xlabel('Loudness')
-ax.set_ylabel('Probability density')
-ax.set_title('Histogram of Accompaniment Loudness')
+    n, bins, patches = ax.hist(y.T[0], bins='auto', density=1)
 
-# Tweak spacing to prevent clipping of ylabel
-fig.tight_layout()
-plt.show()
+    ax.set_xlabel('Loudness')
+    ax.set_ylabel('Probability density')
+    ax.set_title('Histogram of Accompaniment Loudness')
+
+    # Tweak spacing to prevent clipping of ylabel
+    fig.tight_layout()
+    plt.show()
 
 
-fig, ax = plt.subplots()
+    fig, ax = plt.subplots()
 
-# the histogram of the data
+    # the histogram of the data
 
-n, bins, patches = ax.hist(y.T[1], bins='auto', density=1)
+    n, bins, patches = ax.hist(y.T[1], bins='auto', density=1)
 
-ax.set_xlabel('Loudness')
-ax.set_ylabel('Probability density')
-ax.set_title('Histogram of Vocal Loudness')
+    ax.set_xlabel('Loudness')
+    ax.set_ylabel('Probability density')
+    ax.set_title('Histogram of Vocal Loudness')
 
-# Tweak spacing to prevent clipping of ylabel
-fig.tight_layout()
-plt.show()
-"""
+    # Tweak spacing to prevent clipping of ylabel
+    fig.tight_layout()
+    plt.show()
+
 
 
 ############################################################################
@@ -271,6 +270,8 @@ def Mean_learning(sub_X_train, sub_y_train, X_test, y_test, filename):
 
 
     helper.plot(y_test, y_pred, filename+"_Mean_value")
+    helper.plot_histogram(y_test, y_pred, filename+"_Mean_value")
+
 
     return (MAE_acc, MAE_vox, ME_acc, ME_vox)
 
@@ -310,6 +311,8 @@ def SVR_learning(sub_X_train, sub_y_train, X_test, y_test, filename):
 
 
     helper.plot(y_test, y_pred, filename+"_SVR")
+    helper.plot_histogram(y_test, y_pred, filename+"_SVR")
+
 
     return (MAE_acc, MAE_vox, ME_acc, ME_vox)
 
@@ -369,32 +372,44 @@ def machine_learning(X, y, file_dict):
     with open("../Results/file_list.json", 'w') as outfile:
         json.dump(list(file_dict.keys()), outfile)
 
+    #json
     error_mean_list = error_mean_matrix.tolist()
     with open("../Results/error_mean.json", 'w') as outfile:
         json.dump(error_mean_list, outfile)
+    #Binary data
+    np.save('../Results/error_mean.npy', error_mean_matrix)
+    #Human readable data
+    np.savetxt('../Results/error_mean.txt', error_mean_matrix)
 
+    #json
     error_SVR_list = error_SVR_matrix.tolist()
     with open("../Results/error_SVR.json", 'w') as outfile:
         json.dump(error_SVR_list, outfile)
+    #Binary data
+    np.save('../Results/error_SVR.npy', error_SVR_matrix)
+    #Human readable data
+    np.savetxt('../Results/error_SVR.txt', error_SVR_matrix)
 
-
-    print(error_mean_matrix)
-    print(error_SVR_matrix)
+    #print(error_mean_matrix)
+    #print(error_SVR_matrix)
 
     print("Total time:" + str(end - start) + "\n")
-
-
-
-
-
-
-
 
 
     return None
 
 
 machine_learning(X, y, file_dict)
+
+
+
+
+error_mean_matrix = np.load('../Results/error_mean.npy')
+error_SVR_matrix = np.load('../Results/error_SVR.npy')
+
+
+
+quit()
 
 
 """
