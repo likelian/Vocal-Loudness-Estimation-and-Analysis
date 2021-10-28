@@ -11,15 +11,20 @@ import helper
 
 def data_creation():
     """
+
     return:
-        features, numpy matrix of NxF
-        ground_truth_pair:  numpy matrix of Nx2
+        features: numpy matrix of NxF
+
+        ground_truth_pair: numpy matrix of Nx2
+
+        file_dict: dictionary of file names as keys and
+            tuple of the index of the data points of the file as values
     """
 
     ground_truth_path = "../Ground_truth/"
     abs_ground_truth_path = os.path.abspath(ground_truth_path)
 
-
+    file_dict = {}
     ground_truth_voxREL = np.array([])
     ground_truth_accREL = np.array([])
 
@@ -31,6 +36,8 @@ def data_creation():
     unmatched = 0
 
     for filename in os.listdir(abs_ground_truth_path):
+
+
 
         if filename.endswith(".json"):
 
@@ -71,6 +78,7 @@ def data_creation():
             else:
                 features = np.concatenate([features, current_features], axis=0)
 
+
             if length != current_features.shape[0]:
                 print("   ")
                 print(filename)
@@ -80,6 +88,8 @@ def data_creation():
                 print(length)
                 unmatched += 1
 
+            file_dict[filename[:second_underscore]] = (features.shape[0]-length, features.shape[0])
+
         ground_truth_pair = np.stack((ground_truth_accREL, ground_truth_voxREL), axis=-1)
 
 
@@ -88,12 +98,13 @@ def data_creation():
 
     print("data created")
 
-    return features, ground_truth_pair
+    return features, ground_truth_pair, file_dict
 
 
 ############################################################################
 
-X, y = data_creation()
+X, y, file_dict = data_creation()
+
 
 
 ############################################################################
@@ -157,7 +168,7 @@ plt.show()
 
 ############################################################################
 
-
+"""
 from sklearn.model_selection import train_test_split
 
 
@@ -171,6 +182,8 @@ print(train_size)
 
 print("test_size")
 print(test_size)
+
+"""
 
 ############################################################################
 
@@ -194,7 +207,6 @@ print(sub_X_train.shape)
 
 """
 The above data split are ignored
-"""
 
 print("The above data split are ignored")
 print("split before 1000 and after 1000")
@@ -204,7 +216,7 @@ X_test = X[:1000]
 y_test = y[:1000]
 print("sub_X_train" + str(sub_X_train.shape))
 print("y_test" + str(y_test.shape))
-
+"""
 
 
 ############################################################################
@@ -213,48 +225,54 @@ print("y_test" + str(y_test.shape))
 Normalization
 """
 
-from sklearn.preprocessing import MinMaxScaler
+
+
+#from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
 
+"""
 #print("MinMaxScaler")
 #scaler = MinMaxScaler()
 
 print("StandardScaler")
 scaler = StandardScaler()
 
-
-
 scaler.fit(sub_X_train)
 
 sub_X_train = scaler.transform(sub_X_train)
 X_test = scaler.transform(X_test)
-
+"""
 
 ############################################################################
 
-"""
-Mean value predictor
 
-Use the mean values of the training set groud truth as the low bound result
-"""
+def Mean_learning(sub_X_train, sub_y_train, X_test, y_test, filename):
 
+    """
+    Mean value predictor
 
-mean_values = np.mean(sub_y_train, axis=0)
-
-
-print("Mean value: " + str(mean_values))
+    Use the mean values of the training set groud truth as the low bound result
+    """
 
 
-y_pred = np.zeros(y_test.shape)
-
-y_pred += mean_values
+    mean_values = np.mean(sub_y_train, axis=0)
 
 
-helper.MAE(y_test, y_pred, "Mean_value")
-helper.ME(y_test, y_pred, "Mean_value")
+    print("Mean value: " + str(mean_values))
 
 
-helper.plot(y_test, y_pred, "Mean_value")
+    y_pred = np.zeros(y_test.shape)
+
+    y_pred += mean_values
+
+
+    MAE_acc, MAE_vox = helper.MAE(y_test, y_pred, filename+"_Mean_value")
+    ME_acc, ME_vox = helper.ME(y_test, y_pred, filename+"_Mean_value")
+
+
+    helper.plot(y_test, y_pred, filename+"_Mean_value")
+
+    return (MAE_acc, MAE_vox, ME_acc, ME_vox)
 
 
 
@@ -267,36 +285,116 @@ SVR
 
 from sklearn.svm import SVR
 
+def SVR_learning(sub_X_train, sub_y_train, X_test, y_test, filename):
+    """
+    #SVR_chained_acc_first
+    """
+
+    regr = make_pipeline(SVR(C=1.0, epsilon=0.2))
+
+    chain = RegressorChain(base_estimator=regr, order=[0, 1])
+
+    #start = time.time()
+
+    chain.fit(sub_X_train, sub_y_train)
+
+    #end = time.time()
+
+    #print("SVR training time: " + str(end - start) + "\n")
+
+    y_pred = chain.predict(X_test)
 
 
-"""
-#SVR_chained_acc_first
-"""
-
-regr = make_pipeline(SVR(C=1.0, epsilon=0.2))
-
-chain = RegressorChain(base_estimator=regr, order=[0, 1])
-
-start = time.time()
-
-chain.fit(sub_X_train, sub_y_train)
-
-end = time.time()
-
-print("SVR training time: " + str(end - start) + "\n")
+    MAE_acc, MAE_vox = helper.MAE(y_test, y_pred, filename+"_SVR")
+    ME_acc, ME_vox = helper.ME(y_test, y_pred, filename+"_SVR")
 
 
-y_pred = chain.predict(X_test)
+    helper.plot(y_test, y_pred, filename+"_SVR")
 
-
-helper.MAE(y_test, y_pred, "SVR_chained_acc_first")
-helper.ME(y_test, y_pred, "SVR_chained_acc_first")
-
-
-helper.plot(y_test, y_pred, "SVR_chained_acc_first")
+    return (MAE_acc, MAE_vox, ME_acc, ME_vox)
 
 
 
+#SVR_learning(sub_X_train, sub_y_train, X_test, y_test)
+
+
+
+def machine_learning(X, y, file_dict):
+    """
+    apply machine learning algorithms on each file
+    """
+
+    file_count = len(file_dict.keys())
+    error_mean_matrix = np.zeros((file_count, 4))
+    error_SVR_matrix = np.zeros((file_count, 4))
+    idx = 0
+
+    start = time.time()
+
+    for filename in file_dict.keys():
+
+        X_test = X[file_dict[filename][0] : file_dict[filename][1]]
+        y_test = y[file_dict[filename][0] : file_dict[filename][1]]
+
+
+        X_train = np.concatenate((X[: file_dict[filename][0]], X[file_dict[filename][1] :]), axis=0)
+        y_train = np.concatenate((y[: file_dict[filename][0]], y[file_dict[filename][1] :]), axis=0)
+
+        sub_X_train = X_train[0:-1:60]
+        sub_y_train = y_train[0:-1:60]
+
+        #Normalization
+        scaler = StandardScaler()
+        scaler.fit(sub_X_train)
+
+        sub_X_train = scaler.transform(sub_X_train)
+        X_test = scaler.transform(X_test)
+
+        error_mean = Mean_learning(sub_X_train, sub_y_train, X_test, y_test, filename)
+        error_SVR = SVR_learning(sub_X_train, sub_y_train, X_test, y_test, filename)
+
+        #filename_list.append(filename)
+        error_mean_matrix[idx] = error_mean
+        error_SVR_matrix[idx] = error_SVR
+
+
+        idx += 1
+
+        if idx >= 4: break
+
+
+    end = time.time()
+
+
+    with open("../Results/file_list.json", 'w') as outfile:
+        json.dump(list(file_dict.keys()), outfile)
+
+    error_mean_list = error_mean_matrix.tolist()
+    with open("../Results/error_mean.json", 'w') as outfile:
+        json.dump(error_mean_list, outfile)
+
+    error_SVR_list = error_SVR_matrix.tolist()
+    with open("../Results/error_SVR.json", 'w') as outfile:
+        json.dump(error_SVR_list, outfile)
+
+
+    print(error_mean_matrix)
+    print(error_SVR_matrix)
+
+    print("Total time:" + str(end - start) + "\n")
+
+
+
+
+
+
+
+
+
+    return None
+
+
+machine_learning(X, y, file_dict)
 
 
 """
@@ -327,10 +425,6 @@ helper.ME(y_test, y_pred, "SVR_chained_vox_first")
 
 
 helper.plot(y_test, y_pred, "SVR_chained_vox_first")
-
-
-
-
 
 
 """
@@ -365,11 +459,7 @@ helper.ME(y_test, y_pred, "SVR_unchained")
 
 helper.plot(y_test, y_pred, "SVR_unchained")
 
-
-
-
 """
-
 
 
 """
@@ -427,70 +517,82 @@ helper.plot(y_test, y_pred_iter_1, "SVR_chain_iter_1")
 
 ############################################################################
 
-"""
-XGBoost
-"""
+
 
 from xgboost import XGBRegressor
 # load the dataset
 
-model = XGBRegressor()
+def XGBRegressor_learning(sub_X_train, sub_y_train, X_test, y_test):
+    """
+    XGBoost
+    """
 
-chain = RegressorChain(base_estimator=model, order=[0, 1])
+    model = XGBRegressor()
 
-start = time.time()
+    chain = RegressorChain(base_estimator=model, order=[0, 1])
 
-chain.fit(sub_X_train, sub_y_train)
+    start = time.time()
 
-end = time.time()
+    chain.fit(sub_X_train, sub_y_train)
 
-print("XGBoost training time: " + str(end - start) + "\n")
+    end = time.time()
 
-
-y_pred = chain.predict(X_test)
-
-
-helper.MAE(y_test, y_pred, "XGBoost")
-helper.ME(y_test, y_pred, "XGBoost")
+    print("XGBoost training time: " + str(end - start) + "\n")
 
 
-helper.plot(y_test, y_pred, "XGBoost")
+    y_pred = chain.predict(X_test)
 
+
+    helper.MAE(y_test, y_pred, "XGBoost")
+    helper.ME(y_test, y_pred, "XGBoost")
+
+
+    helper.plot(y_test, y_pred, "XGBoost")
+
+    return None
+
+#XGBRegressor_learning(sub_X_train, sub_y_train, X_test, y_test)
 
 
 ############################################################################
 
-"""
-SGDRegressor
-"""
+
 
 from sklearn.linear_model import SGDRegressor
 
 
-reg = make_pipeline(SGDRegressor(max_iter=10000, tol=1e-3))
+def SGDRegressor_learning(sub_X_train, sub_y_train, X_test, y_test):
+    """
+    SGDRegressor
+    """
 
-chain = RegressorChain(base_estimator=reg, order=[0, 1])
+    reg = make_pipeline(SGDRegressor(max_iter=10000, tol=1e-3))
 
-start = time.time()
+    chain = RegressorChain(base_estimator=reg, order=[0, 1])
 
-chain.fit(sub_X_train, sub_y_train)
+    start = time.time()
 
-end = time.time()
+    chain.fit(sub_X_train, sub_y_train)
 
-print("SGDRegressor training time: " + str(end - start) + "\n")
+    end = time.time()
 
-
-
-y_pred = chain.predict(X_test)
-
-
-
-helper.MAE(y_test, y_pred, "SGDRegressor")
-helper.ME(y_test, y_pred, "SGDRegressor")
+    print("SGDRegressor training time: " + str(end - start) + "\n")
 
 
-helper.plot(y_test, y_pred, "SGDRegressor")
 
+    y_pred = chain.predict(X_test)
+
+
+
+    helper.MAE(y_test, y_pred, "SGDRegressor")
+    helper.ME(y_test, y_pred, "SGDRegressor")
+
+
+    helper.plot(y_test, y_pred, "SGDRegressor")
+
+    return None
+
+#SGDRegressor_learning(sub_X_train, sub_y_train, X_test, y_test)
 
 quit()
 

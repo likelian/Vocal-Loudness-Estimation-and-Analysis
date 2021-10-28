@@ -84,7 +84,7 @@ def plot(y_test, y_pred, subtitle="subtitle", show_plot=False, shuffle=False):
     plt.tight_layout(pad=1.0)
 
 
-    plt.savefig("../Plots/" + subtitle + '.png')
+    plt.savefig("../Plots/New/" + subtitle + '.png')
 
     if show_plot:
         plt.show()
