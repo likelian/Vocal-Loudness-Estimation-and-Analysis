@@ -37,8 +37,6 @@ def data_creation():
 
     for filename in os.listdir(abs_ground_truth_path):
 
-
-
         if filename.endswith(".json"):
 
             first_underscore = filename.find("_")
@@ -104,7 +102,6 @@ def data_creation():
 ############################################################################
 
 X, y, file_dict = data_creation()
-
 
 
 ############################################################################
@@ -330,6 +327,81 @@ def machine_learning(X, y, file_dict):
 
         X_train = np.concatenate((X[: file_dict[filename][0]], X[file_dict[filename][1] :]), axis=0)
         y_train = np.concatenate((y[: file_dict[filename][0]], y[file_dict[filename][1] :]), axis=0)
+
+
+
+        """
+        force the subsampling close to a uniform distribution
+
+        1. find the mean and var of the ground truth training data y_train
+        2. generate a random standard distributed array of the given mean and var
+        3. for each value in the array, find the closest one in y_train
+        """
+
+        """
+        force the subsampling close to a uniform distribution
+
+        1. find the mean and var of the ground truth training data y_train
+        2. identify the values of mean - var and mean + var (may have a scaling on var)
+        3. sort the training data y_train
+        4. randomly (uniform), random order index remove data points within the range of 2.
+        5. randomly (normal distribution) remove data points from index.
+
+        """
+
+        import matplotlib.pyplot as plt
+
+        count, bins, ignored = plt.hist(y_train.T[0], 1000, density=True)
+        plt.show()
+        plt.close()
+
+        mean = np.mean(y_train.T[0]) #acc
+        var = np.var(y_train.T[0])
+        size = y_train.T[0].shape[0]
+        a = 1.2
+        low_bound = mean - a * var
+        high_bound = mean + a * var
+
+        y_train_sorted = np.sort(y_train.T[0])
+
+        low_bound_diff_array = np.abs(y_train_sorted - low_bound)
+        low_bound_index = low_bound_diff_array.argmin()
+
+        high_bound_diff_array = np.abs(y_train_sorted - high_bound)
+        high_bound_index = high_bound_diff_array.argmin()
+
+        mean_idx = (high_bound_index + low_bound_index)/2
+        var_idx = (high_bound_index  - low_bound_index)/2
+
+        print(low_bound)
+        print(low_bound_index)
+
+        print(high_bound)
+        print(high_bound_index)
+
+
+        idx2remove = np.random.normal(mean_idx, a*var_idx, size*5).astype(int) #1000 is how many data points to remove
+
+        idx2remove = idx2remove[(idx2remove < size) & (idx2remove > 0)]
+        print(idx2remove)
+
+
+        print(y_train_sorted.shape)
+        y_train_removed = np.delete(y_train_sorted, idx2remove)
+        print(y_train_removed.shape)
+
+
+        count, bins, ignored = plt.hist(y_train_removed, 1000, density=True)
+        plt.show()
+
+
+
+        """
+        Need to make this algorithm work with array, matrix
+        """
+
+        quit()
+
 
         sub_X_train = X_train[0:-1:60]
         sub_y_train = y_train[0:-1:60]
