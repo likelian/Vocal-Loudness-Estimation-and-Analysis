@@ -344,13 +344,13 @@ def machine_learning(X, y, file_dict):
         error_mean, y_test_mean, y_pred_mean = Mean_learning(sub_X_train, sub_y_train, X_test, y_test, filename)
         error_SVR, y_test_SVR, y_pred_SVR = SVR_learning(sub_X_train, sub_y_train, X_test, y_test, filename)
 
+        error_mean_matrix[idx] = error_mean
+        error_SVR_matrix[idx] = error_SVR
+
 
         plot_error_histogram = True
 
         if plot_error_histogram:
-
-            error_mean_matrix[idx] = error_mean
-            error_SVR_matrix[idx] = error_SVR
 
             if y_pred_mean_total is None:
                 y_test_mean_total = y_test_mean
@@ -364,13 +364,17 @@ def machine_learning(X, y, file_dict):
                 y_pred_SVR_total = np.concatenate([y_pred_SVR_total, y_pred_SVR], axis=0)
 
 
+        if idx >= 10: break
+
         idx += 1
 
-        if idx >= 3: break
 
 
     end = time.time()
 
+
+    error_mean_matrix = error_mean_matrix[:idx]
+    error_SVR_matrix = error_SVR_matrix[:idx]
 
 
     helper.plot_histogram(y_test_mean_total, y_pred_mean_total, "Total_Mean")
@@ -401,9 +405,6 @@ def machine_learning(X, y, file_dict):
     #Human readable data
     np.savetxt('../Results/error_SVR.txt', error_SVR_matrix)
 
-    #print(error_mean_matrix)
-    #print(error_SVR_matrix)
-
     print("Total time:" + str(end - start) + "\n")
 
 
@@ -417,6 +418,12 @@ machine_learning(X, y, file_dict)
 
 error_mean_matrix = np.load('../Results/error_mean.npy')
 error_SVR_matrix = np.load('../Results/error_SVR.npy')
+
+
+helper.plot_histogram_error(error_mean_matrix, subtitle="Mean Value")
+helper.plot_histogram_error(error_SVR_matrix, subtitle="SVR")
+
+
 
 
 

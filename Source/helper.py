@@ -63,7 +63,7 @@ def plot_histogram(y_test, y_pred, subtitle="subtitle", show_plot=False):
 
     ax.set_xlabel('Loudness')
     ax.set_ylabel('Probability density')
-    ax.set_title('Histogram of Accompaniment Loudness Error')
+    ax.set_title('Histogram of Accompaniment Loudness Absolute Error')
 
 
     ax = plt.subplot(212)  #vox
@@ -73,7 +73,7 @@ def plot_histogram(y_test, y_pred, subtitle="subtitle", show_plot=False):
 
     ax.set_xlabel('Loudness')
     ax.set_ylabel('Probability density')
-    ax.set_title('Histogram of Vocal Loudness Error')
+    ax.set_title('Histogram of Vocal Loudness Absolute Error')
 
 
 
@@ -84,6 +84,8 @@ def plot_histogram(y_test, y_pred, subtitle="subtitle", show_plot=False):
 
     if show_plot:
         plt.show()
+
+    plt.close()
 
 
 
@@ -135,6 +137,8 @@ def plot(y_test, y_pred, subtitle="subtitle", show_plot=False, shuffle=False):
     if show_plot:
         plt.show()
 
+    plt.close()
+
 
 
 
@@ -172,3 +176,63 @@ def plot_histogram_ground_truth(y):
     # Tweak spacing to prevent clipping of ylabel
     fig.tight_layout()
     plt.show()
+
+
+
+
+
+def plot_histogram_error(error_matrix, show_plot=False, subtitle=""):
+
+    """
+    Plot the histogram of the error
+    """
+
+    plt.figure()
+    plt.suptitle(subtitle+" Error Histogram (file level)")
+
+
+    ax = plt.subplot(221)  #acc MAE
+
+    n, bins, patches = ax.hist(error_matrix.T[0], bins="auto")
+
+    ax.set_xlabel('Loudness')
+    ax.set_ylabel('Probability density')
+    ax.set_title('Accompaniment Loudness Mean Absolute Error')
+
+
+    ax = plt.subplot(222)  #vox MAE
+
+    n, bins, patches = ax.hist(error_matrix.T[1], bins="auto")
+
+    ax.set_xlabel('Loudness')
+    ax.set_ylabel('Probability density')
+    ax.set_title('Vocal Loudness Mean Absolute Error')
+
+
+    ax = plt.subplot(223)  #acc ME
+
+    n, bins, patches = ax.hist(error_matrix.T[2], bins="auto")
+
+    ax.set_xlabel('Loudness')
+    ax.set_ylabel('Probability density')
+    ax.set_title('Accompaniment Loudness Maximum Error')
+
+
+    ax = plt.subplot(224)  #vox ME
+
+    n, bins, patches = ax.hist(error_matrix.T[3], bins="auto")
+
+    ax.set_xlabel('Loudness')
+    ax.set_ylabel('Probability density')
+    ax.set_title(' Vocal Loudness Maximum Error')
+
+    plt.tight_layout(pad=1.0)
+
+
+
+    plt.savefig("../Plots/Error_historgram/Total/File_Level/" + subtitle + "_histogram" + '.png')
+
+    if show_plot:
+        plt.show()
+
+    plt.close()
