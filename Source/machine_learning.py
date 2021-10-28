@@ -5,6 +5,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.multioutput import RegressorChain
 import time
 import helper
+import matplotlib.pyplot as plt
 
 
 ############################################################################
@@ -339,6 +340,10 @@ def machine_learning(X, y, file_dict):
         """
 
         """
+
+        Because accompaniment relative loudness and vocal relative loudness is
+        highly correlated, we only consider the distribution of accompaniment relative loudness
+
         force the subsampling close to a uniform distribution
 
         1. find the mean and var of the ground truth training data y_train
@@ -349,16 +354,20 @@ def machine_learning(X, y, file_dict):
 
         """
 
-        import matplotlib.pyplot as plt
+        """
 
-        count, bins, ignored = plt.hist(y_train.T[0], 1000, density=True)
-        plt.show()
+        train_stack = np.concatenate([y_train, X_train], axis=1)
+        sorted_train_stack = train_stack[np.argsort(train_stack[:, 0])]
+
+
+        count, bins, ignored = plt.hist(sorted_train_stack.T[0], 1000, density=True)
+        #plt.show()
         plt.close()
 
         mean = np.mean(y_train.T[0]) #acc
         var = np.var(y_train.T[0])
         size = y_train.T[0].shape[0]
-        a = 1.2
+        a = 1
         low_bound = mean - a * var
         high_bound = mean + a * var
 
@@ -380,27 +389,30 @@ def machine_learning(X, y, file_dict):
         print(high_bound_index)
 
 
-        idx2remove = np.random.normal(mean_idx, a*var_idx, size*5).astype(int) #1000 is how many data points to remove
+        idx2remove = np.random.normal(mean_idx, var_idx, size*2).astype(int) #1000 is how many data points to remove
 
         idx2remove = idx2remove[(idx2remove < size) & (idx2remove > 0)]
-        print(idx2remove)
+        idx2remove = idx2remove[(idx2remove < (mean_idx+2*var_idx)) & (idx2remove > (mean_idx-2*var_idx))]
 
 
-        print(y_train_sorted.shape)
-        y_train_removed = np.delete(y_train_sorted, idx2remove)
-        print(y_train_removed.shape)
+        sorted_train_stack_removed = np.delete(sorted_train_stack, idx2remove, 0)
 
 
-        count, bins, ignored = plt.hist(y_train_removed, 1000, density=True)
-        plt.show()
+        count, bins, ignored = plt.hist(sorted_train_stack_removed.T[0], 1000, density=True)
+        #plt.show()
+        plt.close()
 
 
+        y_train = sorted_train_stack_removed.T[:2].T
+        X_train = sorted_train_stack_removed.T[2:].T
+
+        print(y_train.shape)
+        print(X_train.shape)
+
+
+        #quit()
 
         """
-        Need to make this algorithm work with array, matrix
-        """
-
-        quit()
 
 
         sub_X_train = X_train[0:-1:60]
@@ -436,7 +448,7 @@ def machine_learning(X, y, file_dict):
                 y_pred_SVR_total = np.concatenate([y_pred_SVR_total, y_pred_SVR], axis=0)
 
 
-        if idx >= 10: break
+        #if idx >= 2: break
 
         idx += 1
 
@@ -491,6 +503,14 @@ machine_learning(X, y, file_dict)
 error_mean_matrix = np.load('../Results/error_mean.npy')
 error_SVR_matrix = np.load('../Results/error_SVR.npy')
 
+
+error_mean_value_average = np.mean(error_mean_matrix, axis=0)
+error_SVR_average = np.mean(error_SVR_matrix, axis=0)
+
+print("error_mean_value_average")
+print(error_mean_value_average)
+print("error_SVR_average")
+print(error_SVR_average)
 
 helper.plot_histogram_error(error_mean_matrix, subtitle="Mean Value")
 helper.plot_histogram_error(error_SVR_matrix, subtitle="SVR")

@@ -210,7 +210,17 @@ Last week:
 2. Individual error histogram
 3. Total error histogram (data point level)
 4. Total error histogram (file level)
+5. averge error over the file level
+6. More uniform distribution (kind of)
 
 
+error_mean_value_average
+vox_MAE        acc_MAE     vox_ME       acc_ME
+[ 0.88644353  1.16208117  3.39344598 13.47482205]
+
+
+error_SVR_average
+vox_MAE        acc_MAE     vox_ME       acc_ME
+[ 0.77124489  0.99434226  3.02321448 13.07296623]
 
 Extract neighbor features?

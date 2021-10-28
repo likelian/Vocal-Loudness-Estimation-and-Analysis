@@ -193,7 +193,7 @@ def plot_histogram_error(error_matrix, show_plot=False, subtitle=""):
 
     ax = plt.subplot(221)  #acc MAE
 
-    n, bins, patches = ax.hist(error_matrix.T[0], bins="auto")
+    n, bins, patches = ax.hist(error_matrix.T[0], bins=100)
 
     ax.set_xlabel('Loudness')
     ax.set_ylabel('Probability density')
@@ -202,7 +202,7 @@ def plot_histogram_error(error_matrix, show_plot=False, subtitle=""):
 
     ax = plt.subplot(222)  #vox MAE
 
-    n, bins, patches = ax.hist(error_matrix.T[1], bins="auto")
+    n, bins, patches = ax.hist(error_matrix.T[1], bins=100)
 
     ax.set_xlabel('Loudness')
     ax.set_ylabel('Probability density')
@@ -211,7 +211,7 @@ def plot_histogram_error(error_matrix, show_plot=False, subtitle=""):
 
     ax = plt.subplot(223)  #acc ME
 
-    n, bins, patches = ax.hist(error_matrix.T[2], bins="auto")
+    n, bins, patches = ax.hist(error_matrix.T[2], bins=100)
 
     ax.set_xlabel('Loudness')
     ax.set_ylabel('Probability density')
@@ -220,7 +220,7 @@ def plot_histogram_error(error_matrix, show_plot=False, subtitle=""):
 
     ax = plt.subplot(224)  #vox ME
 
-    n, bins, patches = ax.hist(error_matrix.T[3], bins="auto")
+    n, bins, patches = ax.hist(error_matrix.T[3], bins=100)
 
     ax.set_xlabel('Loudness')
     ax.set_ylabel('Probability density')
