@@ -118,51 +118,33 @@ Compute the mean and std of the ground truth
 mean_individual_loudness = np.mean(y, axis=0)
 std_individual_loudness = np.std(y, axis=0)
 
+
+
 print("mean_individual_loudness(acc, vox): " + str(mean_individual_loudness))
 print("std_individual_loudness(acc, vox): " + str(std_individual_loudness))
+
 """
 
 
 ############################################################################
 
-import matplotlib
-import matplotlib.pyplot as plt
-
-def plot_histogram_ground_truth(y):
-
-    """
-    Plot the histogram of the ground truth
-    """
-
-    fig, ax = plt.subplots()
-
-    # the histogram of the data
-
-    n, bins, patches = ax.hist(y.T[0], bins='auto', density=1)
-
-    ax.set_xlabel('Loudness')
-    ax.set_ylabel('Probability density')
-    ax.set_title('Histogram of Accompaniment Loudness')
-
-    # Tweak spacing to prevent clipping of ylabel
-    fig.tight_layout()
-    plt.show()
 
 
-    fig, ax = plt.subplots()
+"""
+Plot ground truth histogram
+"""
 
-    # the histogram of the data
+"""
 
-    n, bins, patches = ax.hist(y.T[1], bins='auto', density=1)
 
-    ax.set_xlabel('Loudness')
-    ax.set_ylabel('Probability density')
-    ax.set_title('Histogram of Vocal Loudness')
+plot_histogram_ground_truth(y)
+"""
 
-    # Tweak spacing to prevent clipping of ylabel
-    fig.tight_layout()
-    plt.show()
 
+############################################################################
+
+
+############################################################################
 
 
 ############################################################################
@@ -273,7 +255,7 @@ def Mean_learning(sub_X_train, sub_y_train, X_test, y_test, filename):
     helper.plot_histogram(y_test, y_pred, filename+"_Mean_value")
 
 
-    return (MAE_acc, MAE_vox, ME_acc, ME_vox)
+    return (MAE_acc, MAE_vox, ME_acc, ME_vox), y_test, y_pred
 
 
 
@@ -314,7 +296,7 @@ def SVR_learning(sub_X_train, sub_y_train, X_test, y_test, filename):
     helper.plot_histogram(y_test, y_pred, filename+"_SVR")
 
 
-    return (MAE_acc, MAE_vox, ME_acc, ME_vox)
+    return (MAE_acc, MAE_vox, ME_acc, ME_vox), y_test, y_pred
 
 
 
@@ -331,6 +313,12 @@ def machine_learning(X, y, file_dict):
     error_mean_matrix = np.zeros((file_count, 4))
     error_SVR_matrix = np.zeros((file_count, 4))
     idx = 0
+
+    y_test_mean_total = None
+    y_test_SVR_total = None
+    y_pred_mean_total = None
+    y_pred_SVR_total = None
+
 
     start = time.time()
 
@@ -353,20 +341,43 @@ def machine_learning(X, y, file_dict):
         sub_X_train = scaler.transform(sub_X_train)
         X_test = scaler.transform(X_test)
 
-        error_mean = Mean_learning(sub_X_train, sub_y_train, X_test, y_test, filename)
-        error_SVR = SVR_learning(sub_X_train, sub_y_train, X_test, y_test, filename)
+        error_mean, y_test_mean, y_pred_mean = Mean_learning(sub_X_train, sub_y_train, X_test, y_test, filename)
+        error_SVR, y_test_SVR, y_pred_SVR = SVR_learning(sub_X_train, sub_y_train, X_test, y_test, filename)
 
-        #filename_list.append(filename)
-        error_mean_matrix[idx] = error_mean
-        error_SVR_matrix[idx] = error_SVR
+
+        plot_error_histogram = True
+
+        if plot_error_histogram:
+
+            error_mean_matrix[idx] = error_mean
+            error_SVR_matrix[idx] = error_SVR
+
+            if y_pred_mean_total is None:
+                y_test_mean_total = y_test_mean
+                y_test_SVR_total = y_test_SVR
+                y_pred_mean_total = y_pred_mean
+                y_pred_SVR_total = y_pred_SVR
+            else:
+                y_test_mean_total = np.concatenate([y_test_mean_total, y_test_mean], axis=0)
+                y_test_SVR_total = np.concatenate([y_test_SVR_total, y_test_SVR], axis=0)
+                y_pred_mean_total = np.concatenate([y_pred_mean_total, y_pred_mean], axis=0)
+                y_pred_SVR_total = np.concatenate([y_pred_SVR_total, y_pred_SVR], axis=0)
 
 
         idx += 1
 
-        if idx >= 4: break
+        if idx >= 3: break
 
 
     end = time.time()
+
+
+
+    helper.plot_histogram(y_test_mean_total, y_pred_mean_total, "Total_Mean")
+
+    helper.plot_histogram(y_test_SVR_total, y_pred_SVR_total, "Total_SVR")
+
+
 
 
     with open("../Results/file_list.json", 'w') as outfile:

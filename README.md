@@ -206,5 +206,7 @@ To-Do:
 Last week:
 
 
-1. Shuffle the resulting plots(Learning is happening, but outside of (-2, -4)db range is not predicted well)
-2.
+1. Shuffle the resulting plots(Learning is happening, but limited in the (-2, -4)dB range.
+2. Individual error histogram
+3. Total error histogram (data point level)
+4.

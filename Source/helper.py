@@ -134,3 +134,41 @@ def plot(y_test, y_pred, subtitle="subtitle", show_plot=False, shuffle=False):
 
     if show_plot:
         plt.show()
+
+
+
+
+def plot_histogram_ground_truth(y):
+
+    """
+    Plot the histogram of the ground truth
+    """
+
+    fig, ax = plt.subplots()
+
+    # the histogram of the data
+
+    n, bins, patches = ax.hist(y.T[0], bins='auto', density=1)
+
+    ax.set_xlabel('Loudness')
+    ax.set_ylabel('Probability density')
+    ax.set_title('Histogram of Accompaniment Loudness')
+
+    # Tweak spacing to prevent clipping of ylabel
+    fig.tight_layout()
+    plt.show()
+
+
+    fig, ax = plt.subplots()
+
+    # the histogram of the data
+
+    n, bins, patches = ax.hist(y.T[1], bins='auto', density=1)
+
+    ax.set_xlabel('Loudness')
+    ax.set_ylabel('Probability density')
+    ax.set_title('Histogram of Vocal Loudness')
+
+    # Tweak spacing to prevent clipping of ylabel
+    fig.tight_layout()
+    plt.show()
