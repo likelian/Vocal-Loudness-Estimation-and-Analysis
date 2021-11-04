@@ -156,7 +156,8 @@ def extract_features(audio_path, filename, feature_path = "../Features/"):
 
 
     feature_dict = {}
-    filename_noExt = filename[8:-4]
+    filename_noExt = filename[:-4]
+    #print(filename_noExt)
 
     #print(filename_noExt)
 

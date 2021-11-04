@@ -225,7 +225,7 @@ X_test = scaler.transform(X_test)
 ############################################################################
 
 
-def Mean_learning(sub_X_train, sub_y_train, X_test, y_test, filename):
+def Mean_learning(sub_X_train, sub_y_train, X_test, y_test, filename=""):
 
     """
     Mean value predictor
@@ -266,7 +266,7 @@ SVR
 
 from sklearn.svm import SVR
 
-def SVR_learning(sub_X_train, sub_y_train, X_test, y_test, filename):
+def SVR_learning(sub_X_train, sub_y_train, X_test, y_test, filename=""):
     """
     #SVR_chained_acc_first
     """
@@ -275,13 +275,7 @@ def SVR_learning(sub_X_train, sub_y_train, X_test, y_test, filename):
 
     chain = RegressorChain(base_estimator=regr, order=[0, 1])
 
-    #start = time.time()
-
     chain.fit(sub_X_train, sub_y_train)
-
-    #end = time.time()
-
-    #print("SVR training time: " + str(end - start) + "\n")
 
     y_pred = chain.predict(X_test)
 
@@ -289,8 +283,8 @@ def SVR_learning(sub_X_train, sub_y_train, X_test, y_test, filename):
     MAE_acc, MAE_vox = helper.MAE(y_test, y_pred, filename+"_SVR")
     ME_acc, ME_vox = helper.ME(y_test, y_pred, filename+"_SVR")
 
-
     helper.plot(y_test, y_pred, filename+"_SVR")
+
     helper.plot_histogram(y_test, y_pred, filename+"_SVR")
 
 
@@ -338,9 +332,7 @@ def machine_learning(X, y, file_dict):
         2. generate a random standard distributed array of the given mean and var
         3. for each value in the array, find the closest one in y_train
         """
-
         """
-
         Because accompaniment relative loudness and vocal relative loudness is
         highly correlated, we only consider the distribution of accompaniment relative loudness
 
@@ -351,7 +343,6 @@ def machine_learning(X, y, file_dict):
         3. sort the training data y_train
         4. randomly (uniform), random order index remove data points within the range of 2.
         5. randomly (normal distribution) remove data points from index.
-
         """
 
         """
@@ -413,8 +404,6 @@ def machine_learning(X, y, file_dict):
         #quit()
 
         """
-
-
         sub_X_train = X_train[0:-1:60]
         sub_y_train = y_train[0:-1:60]
 
@@ -447,25 +436,16 @@ def machine_learning(X, y, file_dict):
                 y_pred_mean_total = np.concatenate([y_pred_mean_total, y_pred_mean], axis=0)
                 y_pred_SVR_total = np.concatenate([y_pred_SVR_total, y_pred_SVR], axis=0)
 
-
-        #if idx >= 2: break
-
+        if idx >= 2: break
         idx += 1
 
-
-
     end = time.time()
-
 
     error_mean_matrix = error_mean_matrix[:idx]
     error_SVR_matrix = error_SVR_matrix[:idx]
 
-
     helper.plot_histogram(y_test_mean_total, y_pred_mean_total, "Total_Mean")
-
     helper.plot_histogram(y_test_SVR_total, y_pred_SVR_total, "Total_SVR")
-
-
 
 
     with open("../Results/file_list.json", 'w') as outfile:
@@ -491,13 +471,11 @@ def machine_learning(X, y, file_dict):
 
     print("Total time:" + str(end - start) + "\n")
 
-
     return None
 
 
+
 machine_learning(X, y, file_dict)
-
-
 
 
 error_mean_matrix = np.load('../Results/error_mean.npy')
@@ -517,241 +495,4 @@ helper.plot_histogram_error(error_SVR_matrix, subtitle="SVR")
 
 
 
-
-
 quit()
-
-
-"""
-
-
-"""
-#SVR_chained_vox_first
-"""
-
-regr = make_pipeline(SVR(C=1.0, epsilon=0.2))
-
-chain = RegressorChain(base_estimator=regr, order=[1, 0])
-
-start = time.time()
-
-chain.fit(sub_X_train, sub_y_train)
-
-end = time.time()
-
-print("SVR training time: " + str(end - start) + "\n")
-
-
-y_pred = chain.predict(X_test)
-
-
-helper.MAE(y_test, y_pred, "SVR_chained_vox_first")
-helper.ME(y_test, y_pred, "SVR_chained_vox_first")
-
-
-helper.plot(y_test, y_pred, "SVR_chained_vox_first")
-
-
-"""
-#SVR_unchained
-"""
-
-regr_acc = make_pipeline(SVR(C=1.0, epsilon=0.2))
-regr_vox = make_pipeline(SVR(C=1.0, epsilon=0.2))
-
-
-start = time.time()
-
-regr_acc.fit(sub_X_train, sub_y_train.T[0].T)
-regr_vox.fit(sub_X_train, sub_y_train.T[1].T)
-
-end = time.time()
-
-
-print("SVR training time: " + str(end - start) + "\n")
-
-
-y_pred_acc = regr_acc.predict(X_test)
-y_pred_vox = regr_vox.predict(X_test)
-
-
-y_pred = np.vstack([y_pred_acc, y_pred_vox]).T
-
-
-helper.MAE(y_test, y_pred, "SVR_unchained")
-helper.ME(y_test, y_pred, "SVR_unchained")
-
-
-helper.plot(y_test, y_pred, "SVR_unchained")
-
-"""
-
-
-"""
-
-"""
-#Double Chained
-"""
-
-#regr_acc = make_pipeline(SVR(C=1.0, epsilon=0.2))
-#regr_vox = make_pipeline(SVR(C=1.0, epsilon=0.2))
-
-
-regr = make_pipeline(SVR(C=1.0, epsilon=0.2))
-regr_iter = make_pipeline(SVR(C=1.0, epsilon=0.2))
-
-chain = RegressorChain(base_estimator=regr, order=[0, 1])
-chain_iter_1 = RegressorChain(base_estimator=regr, order=[0, 1])
-
-
-
-start = time.time()
-
-chain.fit(sub_X_train, sub_y_train)
-
-chain_pred = chain.predict(sub_X_train)
-
-new_sub_X_train = np.concatenate((sub_X_train, chain_pred), axis=1)
-
-chain_iter_1.fit(new_sub_X_train, sub_y_train)
-
-
-end = time.time()
-
-
-
-print("SVR training time: " + str(end - start) + "\n")
-
-
-y_pred = chain.predict(X_test)
-new_X_test = np.concatenate((X_test, y_pred), axis=1)
-y_pred_iter_1 = chain_iter_1.predict(new_X_test)
-
-
-helper.MAE(y_test, y_pred_iter_1, "SVR_chain_iter_1")
-helper.ME(y_test, y_pred_iter_1, "SVR_chain_iter_1")
-
-
-helper.plot(y_test, y_pred_iter_1, "SVR_chain_iter_1")
-"""
-
-
-
-
-
-
-############################################################################
-
-
-
-from xgboost import XGBRegressor
-# load the dataset
-
-def XGBRegressor_learning(sub_X_train, sub_y_train, X_test, y_test):
-    """
-    XGBoost
-    """
-
-    model = XGBRegressor()
-
-    chain = RegressorChain(base_estimator=model, order=[0, 1])
-
-    start = time.time()
-
-    chain.fit(sub_X_train, sub_y_train)
-
-    end = time.time()
-
-    print("XGBoost training time: " + str(end - start) + "\n")
-
-
-    y_pred = chain.predict(X_test)
-
-
-    helper.MAE(y_test, y_pred, "XGBoost")
-    helper.ME(y_test, y_pred, "XGBoost")
-
-
-    helper.plot(y_test, y_pred, "XGBoost")
-
-    return None
-
-#XGBRegressor_learning(sub_X_train, sub_y_train, X_test, y_test)
-
-
-############################################################################
-
-
-
-from sklearn.linear_model import SGDRegressor
-
-
-def SGDRegressor_learning(sub_X_train, sub_y_train, X_test, y_test):
-    """
-    SGDRegressor
-    """
-
-    reg = make_pipeline(SGDRegressor(max_iter=10000, tol=1e-3))
-
-    chain = RegressorChain(base_estimator=reg, order=[0, 1])
-
-    start = time.time()
-
-    chain.fit(sub_X_train, sub_y_train)
-
-    end = time.time()
-
-    print("SGDRegressor training time: " + str(end - start) + "\n")
-
-
-
-    y_pred = chain.predict(X_test)
-
-
-
-    helper.MAE(y_test, y_pred, "SGDRegressor")
-    helper.ME(y_test, y_pred, "SGDRegressor")
-
-
-    helper.plot(y_test, y_pred, "SGDRegressor")
-
-    return None
-
-#SGDRegressor_learning(sub_X_train, sub_y_train, X_test, y_test)
-
-quit()
-
-
-
-
-"""
-############################################################################
-
-#Linear Regression
-
-from sklearn.linear_model import LinearRegression
-
-start = time.time()
-
-reg = LinearRegression()
-setattr(reg, "coef_", (2,20))
-reg.fit(features, ground_truth_pair)
-
-end = time.time()
-
-print("LinearRegression")
-print(end - start)
-
-y_predict = reg.predict(features[:1000])
-
-
-t = np.arange(1000)
-
-
-#plt.plot(t, ground_truth_pair[:1000].T[0], y_predict[:1000].T[0]) #acc
-
-#plt.plot(t, ground_truth_pair[:1000].T[1], y_predict[:1000].T[1]) #vox
-
-
-#plt.show()
-"""

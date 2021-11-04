@@ -5,7 +5,7 @@ from sklearn.metrics import max_error
 import random
 
 
-def MAE(y_test, y_pred, Regressor = "Regressors"):
+def MAE(y_test, y_pred, Regressor = "unknown"):
     """
     Compute and print the mean_absolute_error
 
@@ -98,12 +98,15 @@ def plot(y_test, y_pred, subtitle="subtitle", show_plot=False, shuffle=False):
     plot the two predicted and groud truth loudness
     """
 
+    MAE_acc, MAE_vox = MAE(y_test, y_pred)
+    ME_acc, ME_vox = ME(y_test, y_pred)
 
     if shuffle:
         stack = np.concatenate([y_test, y_pred], axis=1)
         np.random.shuffle(stack)
         y_test = stack.T[:2].T
         y_pred = stack.T[2:].T
+        subtitle += "_shuffled"
 
 
     t = np.arange(y_pred.shape[0])/10
@@ -113,7 +116,7 @@ def plot(y_test, y_pred, subtitle="subtitle", show_plot=False, shuffle=False):
 
 
     plt.subplot(211)  #acc
-    plt.title('Accompaniment Loudness compared to Mixture Loudness')
+    plt.title('Accompaniment Loudness compared to Mixture Loudness' + "  MAE: " + str(MAE_acc))
     plt.ylabel('short-term LUFS in dB')
     plt.xlabel('time in seconds')
     plt.plot(t, y_test.T[0], label="ground truth")
@@ -122,7 +125,7 @@ def plot(y_test, y_pred, subtitle="subtitle", show_plot=False, shuffle=False):
 
 
     plt.subplot(212)  #vox
-    plt.title('Vocal Loudness compared to Mixture Loudness')
+    plt.title('Vocal Loudness compared to Mixture Loudness' + " MAE: "+ str(MAE_vox))
     plt.ylabel('short-term LUFS in dB')
     plt.xlabel('time in seconds')
     plt.plot(t, y_test.T[1], label="ground truth")
