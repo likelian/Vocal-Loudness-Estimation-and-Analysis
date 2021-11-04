@@ -14,13 +14,15 @@ def ground_truth(audio_path, ground_truth_path, mixture_path, filename):
 
     data, sampleRate = sf.read(audio_path + "/" + filename)
 
-    rand = np.random.uniform(-6,-3,1)
+    rand_dB = np.random.uniform(-6,0,1)
+
+    rand_amp = 10**(rand_dB/20)
 
     acc = np.array([data.T[0]/2, data.T[0]/2], dtype=np.float32).T #Accompaniment
     vox = np.array([data.T[1]/2, data.T[1]/2], dtype=np.float32).T #Vocal
     str_rand = ''
-    vox *= rand
-    str_rand = "_" + str(rand)
+    vox *= rand_amp
+    str_rand = "_" + str(rand_dB)
     mix = (acc.T + vox.T).T #mono_sum
 
     acc_shortTermLoudness = shortTermLoudness(acc, SR=sampleRate)
@@ -45,7 +47,7 @@ def ground_truth(audio_path, ground_truth_path, mixture_path, filename):
         json.dump(ground_truth, outfile)
 
     mixture_path = "../Audio/MIR-1K_mixture"
-    filename  = "mixture" + str_rand + "_" + filename
+    filename  = "mixture"  + "_" + filename[:-4] + str_rand + ".wav"
     mixture_path_filename = mixture_path + "/" + filename
     sf.write(mixture_path_filename, mix, sampleRate)
 

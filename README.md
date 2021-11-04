@@ -223,4 +223,37 @@ error_SVR_average
 vox_MAE        acc_MAE     vox_ME       acc_ME
 [ 0.77124489  0.99434226  3.02321448 13.07296623]
 
+
+Next week:
+
+1. Verify if it is time dependent, compute the error again for the shuffled results, to eliminate any bug, and plot them together (a process of debug by looking at the result)
+2. Improve the model, push the ME to 0
+3. make the plot of the same scale resolution
+4. Data augmentation
+
 Extract neighbor features?
+
+
+* * *
+
+### 11/04/2021
+
+
+Last week:
+
+1. Shuffled reuslts
+2. as acc distribution gets more uniform (towards the lower value), vox distribution move towards 0dB
+
+
+Next Week:
+
+1. Extending the dataset
+    1. musdb_ dataset (easy one)
+    2. multitrack datasets
+2. plot histogram of x-axis vocal gain, y-axis mean average error over file
+3. Decide the direction (after extending the dataset) (it’s ok to move forward with some issues, not lying), pick one option, then contact over teams immediatlly,
+take some small steps
+    1. improve finding ways
+    2. frequency ratio, new direction
+    3. study on many songs over history
+4.

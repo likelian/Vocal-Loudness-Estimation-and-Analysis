@@ -262,9 +262,9 @@ def plot_histogram_ground_truth(y, title=""):
     ax.set_title('Histogram of Accompaniment Loudness' + "_" + title)
 
     # Tweak spacing to prevent clipping of ylabel
-    fig.tight_layout()
-    plt.show()
-    plt.close()
+    #fig.tight_layout()
+    #plt.show()
+    #plt.close()
 
 
     fig, ax = plt.subplots()
@@ -280,9 +280,9 @@ def plot_histogram_ground_truth(y, title=""):
     ax.set_title('Histogram of Vocal Loudness'+ "_" + title)
 
     # Tweak spacing to prevent clipping of ylabel
-    fig.tight_layout()
-    plt.show()
-    plt.close()
+    #fig.tight_layout()
+    #plt.show()
+    #plt.close()
 
 
 

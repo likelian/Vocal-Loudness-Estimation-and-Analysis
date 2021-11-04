@@ -11,10 +11,10 @@ feature_path = "../Features/"
 
 counter = 0
 while True:
-    #ground_truth.ground_truth_generation(audio_path, ground_truth_path, mixture_audio_path)
+    ground_truth.ground_truth_generation(audio_path, ground_truth_path, mixture_audio_path)
     counter += 1
-    if counter >= 1: break;
+    if counter >= 5: break;
 
-feature_extraction.feature_extraction(audio_path, feature_path)
+feature_extraction.feature_extraction(mixture_audio_path, feature_path)
 
 os.system('python3 machine_learning.py')

@@ -41,10 +41,15 @@ def data_creation():
 
         if filename.endswith(".json"):
 
+            print(filename)
+
             first_underscore = filename.find("_")
             second_underscore = filename.find('_', first_underscore + 1)
+            third_underscore = filename.find('_', second_underscore + 1)
 
-            ground_truth_name = filename[:second_underscore] + "_features.json"
+            ground_truth_name = filename[:third_underscore] + "_features.json"
+
+
 
 
             f = open(abs_ground_truth_path+"/"+filename)
@@ -62,7 +67,8 @@ def data_creation():
                     ground_truth_voxREL = np.concatenate([ground_truth_voxREL, current_ground_truth_voxREL], axis=None)
 
 
-            f_feature = open(abs_feature_path+"/"+ground_truth_name)
+
+            f_feature = open(abs_feature_path+"/"+ "mixture_" + ground_truth_name)
             feature_dict = json.load(f_feature)
 
             current_features = None
@@ -88,7 +94,7 @@ def data_creation():
                 print(length)
                 unmatched += 1
 
-            file_dict[filename[:second_underscore]] = (features.shape[0]-length, features.shape[0])
+            file_dict[filename[:third_underscore]] = (features.shape[0]-length, features.shape[0])
 
         ground_truth_pair = np.stack((ground_truth_accREL, ground_truth_voxREL), axis=-1)
 
@@ -218,11 +224,10 @@ def machine_learning(X, y, file_dict):
 
         y_train, X_train = helper.uniform(y_train, X_train)
 
-        quit()
+        print(y_train.size)
 
-
-        sub_X_train = X_train[0:-1:60]
-        sub_y_train = y_train[0:-1:60]
+        sub_X_train = X_train[0:-1:20]
+        sub_y_train = y_train[0:-1:20]
 
         #Normalization
         scaler = StandardScaler()
@@ -253,7 +258,7 @@ def machine_learning(X, y, file_dict):
                 y_pred_mean_total = np.concatenate([y_pred_mean_total, y_pred_mean], axis=0)
                 y_pred_SVR_total = np.concatenate([y_pred_SVR_total, y_pred_SVR], axis=0)
 
-        if idx >= 0: break
+        #if idx >= 0: break
         idx += 1
 
     end = time.time()

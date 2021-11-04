@@ -157,9 +157,8 @@ def extract_features(audio_path, filename, feature_path = "../Features/"):
 
     feature_dict = {}
     filename_noExt = filename[:-4]
-    #print(filename_noExt)
+    print(filename_noExt)
 
-    #print(filename_noExt)
 
     feature_dict[filename_noExt+"_mfcc_mean"] = mfcc_mean.tolist()
     feature_dict[filename_noExt+"_shortLUFS"] = shortTermLUFS.tolist()
@@ -182,6 +181,8 @@ def extract_features(audio_path, filename, feature_path = "../Features/"):
 def feature_extraction(audio_path = "../Audio/MIR-1K_mixture", feature_path = "../Features/"):
 
     abs_audio_path = os.path.abspath(audio_path)
+
+    print(abs_audio_path)
 
 
     for filename in os.listdir(abs_audio_path):
