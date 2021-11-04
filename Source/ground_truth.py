@@ -19,8 +19,8 @@ def ground_truth(audio_path, ground_truth_path, mixture_path, filename):
     acc = np.array([data.T[0]/2, data.T[0]/2], dtype=np.float32).T #Accompaniment
     vox = np.array([data.T[1]/2, data.T[1]/2], dtype=np.float32).T #Vocal
     str_rand = ''
-    #vox *= rand
-    #str_rand = "_" + str(rand)
+    vox *= rand
+    str_rand = "_" + str(rand)
     mix = (acc.T + vox.T).T #mono_sum
 
     acc_shortTermLoudness = shortTermLoudness(acc, SR=sampleRate)

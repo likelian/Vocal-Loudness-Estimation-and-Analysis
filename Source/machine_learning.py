@@ -6,6 +6,7 @@ from sklearn.multioutput import RegressorChain
 import time
 import helper
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
 
 
 ############################################################################
@@ -107,120 +108,13 @@ X, y, file_dict = data_creation()
 
 ############################################################################
 
-
-"""
-Compute the mean and std of the ground truth
-"""
-
-"""
-mean_individual_loudness = np.mean(y, axis=0)
-std_individual_loudness = np.std(y, axis=0)
-
-
-
-print("mean_individual_loudness(acc, vox): " + str(mean_individual_loudness))
-print("std_individual_loudness(acc, vox): " + str(std_individual_loudness))
-
-"""
-
-
-############################################################################
-
-
-
 """
 Plot ground truth histogram
 """
 
-"""
 
+helper.plot_histogram_ground_truth(y, "the complete dataset")
 
-plot_histogram_ground_truth(y)
-"""
-
-
-############################################################################
-
-
-############################################################################
-
-
-############################################################################
-
-"""
-from sklearn.model_selection import train_test_split
-
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
-
-train_size = X_train.shape[0]
-test_size = X_test.shape[0]
-
-print("train_size")
-print(train_size)
-
-print("test_size")
-print(test_size)
-
-"""
-
-############################################################################
-
-
-#subsample
-
-"""
-The above data split are ignored
-"""
-"""
-
-sub_X_train = X_train[0:train_size:5]
-sub_y_train = y_train[0:train_size:5]
-
-print("sub_train_size")
-print(sub_X_train.shape)
-"""
-
-############################################################################
-
-
-"""
-The above data split are ignored
-
-print("The above data split are ignored")
-print("split before 1000 and after 1000")
-sub_X_train = X[1000:][0:-1:60]
-sub_y_train = y[1000:][0:-1:60]
-X_test = X[:1000]
-y_test = y[:1000]
-print("sub_X_train" + str(sub_X_train.shape))
-print("y_test" + str(y_test.shape))
-"""
-
-
-############################################################################
-
-"""
-Normalization
-"""
-
-
-
-#from sklearn.preprocessing import MinMaxScaler
-from sklearn.preprocessing import StandardScaler
-
-"""
-#print("MinMaxScaler")
-#scaler = MinMaxScaler()
-
-print("StandardScaler")
-scaler = StandardScaler()
-
-scaler.fit(sub_X_train)
-
-sub_X_train = scaler.transform(sub_X_train)
-X_test = scaler.transform(X_test)
-"""
 
 ############################################################################
 
@@ -291,9 +185,7 @@ def SVR_learning(sub_X_train, sub_y_train, X_test, y_test, filename=""):
     return (MAE_acc, MAE_vox, ME_acc, ME_vox), y_test, y_pred
 
 
-
 #SVR_learning(sub_X_train, sub_y_train, X_test, y_test)
-
 
 
 def machine_learning(X, y, file_dict):
@@ -324,86 +216,11 @@ def machine_learning(X, y, file_dict):
         y_train = np.concatenate((y[: file_dict[filename][0]], y[file_dict[filename][1] :]), axis=0)
 
 
+        y_train, X_train = helper.uniform(y_train, X_train)
 
-        """
-        force the subsampling close to a uniform distribution
-
-        1. find the mean and var of the ground truth training data y_train
-        2. generate a random standard distributed array of the given mean and var
-        3. for each value in the array, find the closest one in y_train
-        """
-        """
-        Because accompaniment relative loudness and vocal relative loudness is
-        highly correlated, we only consider the distribution of accompaniment relative loudness
-
-        force the subsampling close to a uniform distribution
-
-        1. find the mean and var of the ground truth training data y_train
-        2. identify the values of mean - var and mean + var (may have a scaling on var)
-        3. sort the training data y_train
-        4. randomly (uniform), random order index remove data points within the range of 2.
-        5. randomly (normal distribution) remove data points from index.
-        """
-
-        """
-
-        train_stack = np.concatenate([y_train, X_train], axis=1)
-        sorted_train_stack = train_stack[np.argsort(train_stack[:, 0])]
+        quit()
 
 
-        count, bins, ignored = plt.hist(sorted_train_stack.T[0], 1000, density=True)
-        #plt.show()
-        plt.close()
-
-        mean = np.mean(y_train.T[0]) #acc
-        var = np.var(y_train.T[0])
-        size = y_train.T[0].shape[0]
-        a = 1
-        low_bound = mean - a * var
-        high_bound = mean + a * var
-
-        y_train_sorted = np.sort(y_train.T[0])
-
-        low_bound_diff_array = np.abs(y_train_sorted - low_bound)
-        low_bound_index = low_bound_diff_array.argmin()
-
-        high_bound_diff_array = np.abs(y_train_sorted - high_bound)
-        high_bound_index = high_bound_diff_array.argmin()
-
-        mean_idx = (high_bound_index + low_bound_index)/2
-        var_idx = (high_bound_index  - low_bound_index)/2
-
-        print(low_bound)
-        print(low_bound_index)
-
-        print(high_bound)
-        print(high_bound_index)
-
-
-        idx2remove = np.random.normal(mean_idx, var_idx, size*2).astype(int) #1000 is how many data points to remove
-
-        idx2remove = idx2remove[(idx2remove < size) & (idx2remove > 0)]
-        idx2remove = idx2remove[(idx2remove < (mean_idx+2*var_idx)) & (idx2remove > (mean_idx-2*var_idx))]
-
-
-        sorted_train_stack_removed = np.delete(sorted_train_stack, idx2remove, 0)
-
-
-        count, bins, ignored = plt.hist(sorted_train_stack_removed.T[0], 1000, density=True)
-        #plt.show()
-        plt.close()
-
-
-        y_train = sorted_train_stack_removed.T[:2].T
-        X_train = sorted_train_stack_removed.T[2:].T
-
-        print(y_train.shape)
-        print(X_train.shape)
-
-
-        #quit()
-
-        """
         sub_X_train = X_train[0:-1:60]
         sub_y_train = y_train[0:-1:60]
 
@@ -436,7 +253,7 @@ def machine_learning(X, y, file_dict):
                 y_pred_mean_total = np.concatenate([y_pred_mean_total, y_pred_mean], axis=0)
                 y_pred_SVR_total = np.concatenate([y_pred_SVR_total, y_pred_SVR], axis=0)
 
-        if idx >= 2: break
+        if idx >= 0: break
         idx += 1
 
     end = time.time()
@@ -474,8 +291,8 @@ def machine_learning(X, y, file_dict):
     return None
 
 
-
 machine_learning(X, y, file_dict)
+
 
 
 error_mean_matrix = np.load('../Results/error_mean.npy')
@@ -492,7 +309,6 @@ print(error_SVR_average)
 
 helper.plot_histogram_error(error_mean_matrix, subtitle="Mean Value")
 helper.plot_histogram_error(error_SVR_matrix, subtitle="SVR")
-
 
 
 quit()
