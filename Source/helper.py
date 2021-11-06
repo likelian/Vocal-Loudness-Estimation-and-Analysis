@@ -264,7 +264,7 @@ def plot_histogram_ground_truth(y, title=""):
     # Tweak spacing to prevent clipping of ylabel
     #fig.tight_layout()
     #plt.show()
-    #plt.close()
+    plt.close()
 
 
     fig, ax = plt.subplots()
@@ -282,7 +282,7 @@ def plot_histogram_ground_truth(y, title=""):
     # Tweak spacing to prevent clipping of ylabel
     #fig.tight_layout()
     #plt.show()
-    #plt.close()
+    plt.close()
 
 
 

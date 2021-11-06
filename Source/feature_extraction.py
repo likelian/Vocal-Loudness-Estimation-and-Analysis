@@ -143,7 +143,7 @@ def extract_spectral_centroid(audio, sampleRate=44100):
 
 ########################################################
 
-def extract_features(audio_path, filename, feature_path = "../Features/"):
+def extract_features(audio_path, filename, feature_path = "../Features/MIR-1K/"):
 
     audio, sampleRate = sf.read(audio_path + "/" + filename)
     audio_stereo = audio
@@ -165,7 +165,7 @@ def extract_features(audio_path, filename, feature_path = "../Features/"):
     feature_dict[filename_noExt+"spectral_centroid"] = spectral_centroid.tolist()
 
 
-    feature_path = "../Features/"
+    #feature_path = "../Features/"
     with open(feature_path + filename_noExt + "_features.json", 'w') as outfile:
         json.dump(feature_dict, outfile)
 
@@ -178,7 +178,7 @@ def extract_features(audio_path, filename, feature_path = "../Features/"):
 ########################################################
 
 
-def feature_extraction(audio_path = "../Audio/MIR-1K_mixture", feature_path = "../Features/"):
+def feature_extraction(audio_path = "../Audio/Mixture/MIR-1K_mixture", feature_path = "../Features/MIR-1K/"):
 
     abs_audio_path = os.path.abspath(audio_path)
 

@@ -250,10 +250,11 @@ Next Week:
 1. Extending the dataset
     1. musdb_ dataset (easy one)
     2. multitrack datasets
-2. plot histogram of x-axis vocal gain, y-axis mean average error over file
-3. Decide the direction (after extending the dataset) (it’s ok to move forward with some issues, not lying), pick one option, then contact over teams immediatlly,
+2. more features?
+3. plot histogram of x-axis vocal gain, y-axis mean average error over file
+4. Decide the direction (after extending the dataset) (it’s ok to move forward with some issues, not lying), pick one option, then contact over teams immediatlly,
 take some small steps
-    1. improve finding ways
+    1. improve (VGG?)
     2. frequency ratio, new direction
     3. study on many songs over history
-4.
+5.

@@ -42,12 +42,10 @@ def ground_truth(audio_path, ground_truth_path, mixture_path, filename):
     ground_truth[filename_noExt+"_accREL_shortTermLoudness"] = accREL_shortTermLoudness.tolist()
     ground_truth[filename_noExt+"_voxREL_shortTermLoudness"] = voxREL_shortTermLoudness.tolist()
 
-    ground_truth_path = "../Ground_truth/"
     with open(ground_truth_path + filename_noExt + str_rand + "_ground_truth.json", 'w') as outfile:
         json.dump(ground_truth, outfile)
 
-    mixture_path = "../Audio/MIR-1K_mixture"
-    filename  = "mixture"  + "_" + filename[:-4] + str_rand + ".wav"
+    filename = "mixture"  + "_" + filename[:-4] + str_rand + ".wav"
     mixture_path_filename = mixture_path + "/" + filename
     sf.write(mixture_path_filename, mix, sampleRate)
 
@@ -69,8 +67,8 @@ def shortTermLoudness(buffer, SR=44100, HS=0.1):
 ########################################################
 
 def ground_truth_generation(audio_path = "../Audio/MIR-1K",
-                            ground_truth_path = "../Ground_truth/",
-                            mixture_path = "../Audio/MIR-1K_mixture"):
+                            ground_truth_path = "../Ground_truth/MIR-1K",
+                            mixture_path = "../Audio/Mixture/MIR-1K_mixture"):
 
     abs_audio_path = os.path.abspath(audio_path)
 

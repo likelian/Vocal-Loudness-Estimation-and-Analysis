@@ -11,9 +11,8 @@ from sklearn.preprocessing import StandardScaler
 
 ############################################################################
 
-def data_creation():
+def data_creation(ground_truth_path, feature_path):
     """
-
     return:
         features: numpy matrix of NxF
 
@@ -23,14 +22,14 @@ def data_creation():
             tuple of the index of the data points of the file as values
     """
 
-    ground_truth_path = "../Ground_truth/"
+
     abs_ground_truth_path = os.path.abspath(ground_truth_path)
 
     file_dict = {}
     ground_truth_voxREL = np.array([])
     ground_truth_accREL = np.array([])
 
-    feature_path = "../Features/"
+
     abs_feature_path = os.path.abspath(feature_path)
 
 
@@ -48,8 +47,6 @@ def data_creation():
             third_underscore = filename.find('_', second_underscore + 1)
 
             ground_truth_name = filename[:third_underscore] + "_features.json"
-
-
 
 
             f = open(abs_ground_truth_path+"/"+filename)
@@ -109,7 +106,10 @@ def data_creation():
 
 ############################################################################
 
-X, y, file_dict = data_creation()
+ground_truth_path = "../Ground_truth/MIR-1K"
+feature_path = "../Features/MIR-1K"
+
+X, y, file_dict = data_creation(ground_truth_path, feature_path)
 
 
 ############################################################################
@@ -226,8 +226,8 @@ def machine_learning(X, y, file_dict):
 
         print(y_train.size)
 
-        sub_X_train = X_train[0:-1:20]
-        sub_y_train = y_train[0:-1:20]
+        sub_X_train = X_train[0:-1:60]
+        sub_y_train = y_train[0:-1:60]
 
         #Normalization
         scaler = StandardScaler()
