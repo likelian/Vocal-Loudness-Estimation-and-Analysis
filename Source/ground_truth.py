@@ -8,7 +8,7 @@ import json
 import os
 
 
-########################################################
+################################################################################################################
 
 def ground_truth(audio_path, ground_truth_path, mixture_path, filename):
 
@@ -50,7 +50,7 @@ def ground_truth(audio_path, ground_truth_path, mixture_path, filename):
     sf.write(mixture_path_filename, mix, sampleRate)
 
 
-########################################################
+################################################################################################################
 
 def shortTermLoudness(buffer, SR=44100, HS=0.1):
     """
@@ -64,7 +64,7 @@ def shortTermLoudness(buffer, SR=44100, HS=0.1):
     return shortTermLoudness[:-1]
 
 
-########################################################
+################################################################################################################
 
 def ground_truth_generation_MIR_1K(audio_path = "../Audio/MIR-1K",
                             ground_truth_path = "../Ground_truth/MIR-1K",
@@ -76,11 +76,8 @@ def ground_truth_generation_MIR_1K(audio_path = "../Audio/MIR-1K",
         if filename.endswith(".wav"):
             ground_truth(audio_path, ground_truth_path, mixture_path, filename)
 
-########################################################
 
-
-
-########################################################
+################################################################################################################
 
 def ground_truth_generation_MUSDB(audio_path = "../Audio/musdb18hq",
                             ground_truth_path = "../Ground_truth/musdb18hq",
@@ -100,22 +97,40 @@ def ground_truth_generation_MUSDB(audio_path = "../Audio/musdb18hq",
 
         vox_mono = vox.T[0]/2 + vox.T[1]/2
         acc_mono = acc.T[0]/2 + acc.T[1]/2
-
         mix_mono = vox_mono + acc_mono
 
-        mix = np.array([mix_mono, mix_mono]).T
+        vox = np.array([vox_mono, vox_mono], dtype=np.float32).T
+        acc = np.array([acc_mono, acc_mono], dtype=np.float32).T
+        mix = np.array([mix_mono, mix_mono], dtype=np.float32).T
 
+        rand_dB = np.random.uniform(-6,0,1)
+        rand_amp = 10**(rand_dB/20)
+        str_rand = ''
+        #vox *= rand_amp
+        #str_rand = "_" + str(rand_dB)
+
+        acc_shortTermLoudness = shortTermLoudness(acc, SR=sampleRate)
+        vox_shortTermLoudness = shortTermLoudness(vox, SR=sampleRate)
+        mix_shortTermLoudness = shortTermLoudness(mix, SR=sampleRate)
+        accREL_shortTermLoudness = acc_shortTermLoudness - mix_shortTermLoudness
+        voxREL_shortTermLoudness = vox_shortTermLoudness - mix_shortTermLoudness
+
+        timeInSec = np.arange(acc_shortTermLoudness.size) * 0.1
+
+        ground_truth = {}
+        filename = str(dir)
+        ground_truth[filename+"_timeInSec"] = timeInSec.tolist()
+        ground_truth[filename+"_acc_shortTermLoudness"] = acc_shortTermLoudness.tolist()
+        ground_truth[filename+"_vox_shortTermLoudness"] = vox_shortTermLoudness.tolist()
+        ground_truth[filename+"_mix_shortTermLoudness"] = mix_shortTermLoudness.tolist()
+        ground_truth[filename+"_accREL_shortTermLoudness"] = accREL_shortTermLoudness.tolist()
+        ground_truth[filename+"_voxREL_shortTermLoudness"] = voxREL_shortTermLoudness.tolist()
+
+
+        with open(ground_truth_path +"/"+ filename + str_rand + "_ground_truth.json", 'w') as outfile:
+            json.dump(ground_truth, outfile)
 
         mixture_path_filename = mixture_path+"/mixture_"+str(dir)+".wav"
-
         sf.write(mixture_path_filename, mix, sampleRate)
 
-        
-
-        quit()
-
-
-        if filename.endswith(".wav"):
-            ground_truth(audio_path, ground_truth_path, mixture_path, filename)
-
-########################################################
+################################################################################################################
