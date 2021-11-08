@@ -66,13 +66,55 @@ def shortTermLoudness(buffer, SR=44100, HS=0.1):
 
 ########################################################
 
-def ground_truth_generation(audio_path = "../Audio/MIR-1K",
+def ground_truth_generation_MIR_1K(audio_path = "../Audio/MIR-1K",
                             ground_truth_path = "../Ground_truth/MIR-1K",
                             mixture_path = "../Audio/Mixture/MIR-1K_mixture"):
 
     abs_audio_path = os.path.abspath(audio_path)
 
     for filename in os.listdir(abs_audio_path):
+        if filename.endswith(".wav"):
+            ground_truth(audio_path, ground_truth_path, mixture_path, filename)
+
+########################################################
+
+
+
+########################################################
+
+def ground_truth_generation_MUSDB(audio_path = "../Audio/musdb18hq",
+                            ground_truth_path = "../Ground_truth/musdb18hq",
+                            mixture_path = "../Audio/Mixture/musdb18hq_mixture"):
+
+    abs_audio_path = os.path.abspath(audio_path)
+
+    for dir in os.listdir(abs_audio_path):
+        stem_path = abs_audio_path+"/"+dir
+        vox_path = stem_path+"/"+"vocals.wav"
+        original_mixture_path = stem_path+"/"+"mixture.wav"
+
+        vox, sampleRate = sf.read(vox_path)
+        mix_original, sampleRate = sf.read(original_mixture_path)
+
+        acc = mix_original - vox
+
+        vox_mono = vox.T[0]/2 + vox.T[1]/2
+        acc_mono = acc.T[0]/2 + acc.T[1]/2
+
+        mix_mono = vox_mono + acc_mono
+
+        mix = np.array([mix_mono, mix_mono]).T
+
+
+        mixture_path_filename = mixture_path+"/mixture_"+str(dir)+".wav"
+
+        sf.write(mixture_path_filename, mix, sampleRate)
+
+        
+
+        quit()
+
+
         if filename.endswith(".wav"):
             ground_truth(audio_path, ground_truth_path, mixture_path, filename)
 
