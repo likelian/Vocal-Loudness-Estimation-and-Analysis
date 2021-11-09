@@ -40,14 +40,13 @@ def data_creation(ground_truth_path, feature_path):
 
         if filename.endswith(".json"):
 
-            print(filename)
+            #first_underscore = filename.find("_")
+            #second_underscore = filename.find('_', first_underscore + 1)
+            #third_underscore = filename.find('_', second_underscore + 1)
 
-            first_underscore = filename.find("_")
-            second_underscore = filename.find('_', first_underscore + 1)
-            third_underscore = filename.find('_', second_underscore + 1)
+            #ground_truth_name = filename[:third_underscore] + "_features.json"
 
-            ground_truth_name = filename[:third_underscore] + "_features.json"
-
+            ground_truth_name = filename[:-18] + "_features.json"
 
             f = open(abs_ground_truth_path+"/"+filename)
             ground_truth_dict = json.load(f)
@@ -90,8 +89,10 @@ def data_creation(ground_truth_path, feature_path):
                 print("ground_truth_length")
                 print(length)
                 unmatched += 1
+                continue
 
-            file_dict[filename[:third_underscore]] = (features.shape[0]-length, features.shape[0])
+            file_dict[ground_truth_name] = (features.shape[0]-length, features.shape[0])
+
 
         ground_truth_pair = np.stack((ground_truth_accREL, ground_truth_voxREL), axis=-1)
 
@@ -106,8 +107,12 @@ def data_creation(ground_truth_path, feature_path):
 
 ############################################################################
 
-ground_truth_path = "../Ground_truth/MIR-1K"
-feature_path = "../Features/MIR-1K"
+#ground_truth_path = "../Ground_truth/MIR-1K"
+#feature_path = "../Features/MIR-1K"
+
+
+ground_truth_path = "../Ground_truth/musdb18hq"
+feature_path = "../Features/musdb18hq"
 
 X, y, file_dict = data_creation(ground_truth_path, feature_path)
 
@@ -297,7 +302,6 @@ def machine_learning(X, y, file_dict):
 
 
 machine_learning(X, y, file_dict)
-
 
 
 error_mean_matrix = np.load('../Results/error_mean.npy')

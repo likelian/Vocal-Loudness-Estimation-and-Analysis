@@ -258,3 +258,15 @@ take some small steps
     2. frequency ratio, new direction
     3. study on many songs over history
 5.
+
+
+
+
+* * *
+
+### 11/11/2021
+
+Last week:
+
+1. Get the MUSDB dataset and running, results are funny but not surprising
+2.

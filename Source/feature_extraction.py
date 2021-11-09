@@ -45,7 +45,7 @@ def MFCC(audio, sampleRate, audio_stereo):
 
     mfccs_T = mfccs.T
 
-    while current_time <= audio_length -3 + (0/sampleRate):
+    while current_time < audio_length -2.9999:
 
         idx_min = np.searchsorted(timeInSec, current_time, 'right')
         idx_max = np.searchsorted(timeInSec, current_time+3.0, 'left') - 1
@@ -104,7 +104,7 @@ def extract_spectral_centroid(audio, sampleRate=44100):
     spectral_centroid_mean = None
     current_time = 0.0
 
-    while current_time <= audio_length -3 + (0/sampleRate):
+    while current_time <= audio_length -2.99:
 
         idx_min = np.searchsorted(timeInSec, current_time, 'right')
         idx_max = np.searchsorted(timeInSec, current_time+3.0, 'left') - 1
@@ -154,6 +154,15 @@ def extract_features(audio_path, filename, feature_path = "../Features/MIR-1K/")
     shortTermLUFS = shortTermLoudness(audio_stereo, sampleRate, HS=0.1)
     spectral_centroid = extract_spectral_centroid(audio, sampleRate)
 
+    if mfcc_mean.shape[0] != shortTermLUFS.shape[0]:
+        mfcc_mean = mfcc_mean[:-1]
+        print("mfcc")
+        print(mfcc_mean.shape[0])
+        print("shortTermLUFS")
+        print(shortTermLUFS.shape[0])
+        #quit()
+
+
 
     feature_dict = {}
     filename_noExt = filename[:-4]
@@ -162,7 +171,7 @@ def extract_features(audio_path, filename, feature_path = "../Features/MIR-1K/")
 
     feature_dict[filename_noExt+"_mfcc_mean"] = mfcc_mean.tolist()
     feature_dict[filename_noExt+"_shortLUFS"] = shortTermLUFS.tolist()
-    feature_dict[filename_noExt+"spectral_centroid"] = spectral_centroid.tolist()
+    #feature_dict[filename_noExt+"_spectral_centroid"] = spectral_centroid.tolist()
 
 
     #feature_path = "../Features/"

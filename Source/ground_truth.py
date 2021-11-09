@@ -88,6 +88,8 @@ def ground_truth_generation_MUSDB(audio_path = "../Audio/musdb18hq",
     for dir in os.listdir(abs_audio_path):
         stem_path = abs_audio_path+"/"+dir
         vox_path = stem_path+"/"+"vocals.wav"
+        if not os.path.isfile(vox_path):
+            continue
         original_mixture_path = stem_path+"/"+"mixture.wav"
 
         vox, sampleRate = sf.read(vox_path)
@@ -97,17 +99,19 @@ def ground_truth_generation_MUSDB(audio_path = "../Audio/musdb18hq",
 
         vox_mono = vox.T[0]/2 + vox.T[1]/2
         acc_mono = acc.T[0]/2 + acc.T[1]/2
+
+
+        rand_dB = np.random.uniform(-6,0,1)
+        rand_amp = 10**(rand_dB/20)
+        str_rand = ''
+        vox_mono *= rand_amp
+        str_rand = "_" + str(rand_dB)
+
         mix_mono = vox_mono + acc_mono
 
         vox = np.array([vox_mono, vox_mono], dtype=np.float32).T
         acc = np.array([acc_mono, acc_mono], dtype=np.float32).T
         mix = np.array([mix_mono, mix_mono], dtype=np.float32).T
-
-        rand_dB = np.random.uniform(-6,0,1)
-        rand_amp = 10**(rand_dB/20)
-        str_rand = ''
-        #vox *= rand_amp
-        #str_rand = "_" + str(rand_dB)
 
         acc_shortTermLoudness = shortTermLoudness(acc, SR=sampleRate)
         vox_shortTermLoudness = shortTermLoudness(vox, SR=sampleRate)
@@ -130,7 +134,7 @@ def ground_truth_generation_MUSDB(audio_path = "../Audio/musdb18hq",
         with open(ground_truth_path +"/"+ filename + str_rand + "_ground_truth.json", 'w') as outfile:
             json.dump(ground_truth, outfile)
 
-        mixture_path_filename = mixture_path+"/mixture_"+str(dir)+".wav"
+        mixture_path_filename = mixture_path+"/mixture_"+str(dir)+str_rand+".wav"
         sf.write(mixture_path_filename, mix, sampleRate)
 
 ################################################################################################################
