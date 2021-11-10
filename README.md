@@ -288,13 +288,15 @@ MUSDB dataset, evaluated on 30 files and the subset of the rest as trainining se
 
 
 
-From MUSDB to MIR-1k, evaluate on the first 30 files
+From MUSDB (1%) to MIR-1k, evaluate on the first 30 files
+Smaller training set is actually better,,
 ok, WTF!!! The plots are just random  nonsense too. what's been learned from MUSDB doesn't apply to  MIR-1k. MUSDB sounds pretty diverse by itsself, wtf. Why did I choose to do the vocal loudness prediction at all, humans are not the same.. I should just predict bass guitar loudness or whatever, has to be a easier task.
 
 | average over each file (in dB) | vox_MAE | acc_MAE | vox_ME | acc_ME |
 | --- | --- | --- | --- | --- |
-| mean value prediction error | **1.10951481** | 4.92782653 | **3.88809626** | **18.30719372**|
-| SVR prediction error | 1.39899926 | **4.28260407** | 4.63746981 | 19.10009475|
+| mean value prediction error | **1.123005** | 4.81246986 | **3.90860591** | **7.61470019**|
+| SVR prediction error | 1.37235076 | **3.55712374** | 4.14594289 | 8.26322904|
+
 
 
 Cheating!!!!
