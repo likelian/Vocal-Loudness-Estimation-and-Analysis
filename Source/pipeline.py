@@ -17,7 +17,7 @@ feature_path = "../Features/MIR-1K/"
 #    if counter >= 2: break;
 
 
-#feature_extraction.feature_extraction(mixture_audio_path, feature_path)
+feature_extraction.feature_extraction(mixture_audio_path, feature_path)
 
 ############################################################################
 
@@ -34,7 +34,7 @@ feature_path = "../Features/musdb18hq/"
 #    if counter >= 1: break;
 
 
-feature_extraction.feature_extraction(mixture_audio_path, feature_path)
+#feature_extraction.feature_extraction(mixture_audio_path, feature_path)
 
 
 

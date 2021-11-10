@@ -6,7 +6,7 @@ from sklearn.multioutput import RegressorChain
 import time
 import helper
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import StandardScaler
+
 
 
 ############################################################################
@@ -39,12 +39,6 @@ def data_creation(ground_truth_path, feature_path):
     for filename in os.listdir(abs_ground_truth_path):
 
         if filename.endswith(".json"):
-
-            #first_underscore = filename.find("_")
-            #second_underscore = filename.find('_', first_underscore + 1)
-            #third_underscore = filename.find('_', second_underscore + 1)
-
-            #ground_truth_name = filename[:third_underscore] + "_features.json"
 
             ground_truth_name = filename[:-18] + "_features.json"
 
@@ -107,30 +101,8 @@ def data_creation(ground_truth_path, feature_path):
 
 ############################################################################
 
-#ground_truth_path = "../Ground_truth/MIR-1K"
-#feature_path = "../Features/MIR-1K"
 
-
-ground_truth_path = "../Ground_truth/musdb18hq"
-feature_path = "../Features/musdb18hq"
-
-X, y, file_dict = data_creation(ground_truth_path, feature_path)
-
-
-############################################################################
-
-"""
-Plot ground truth histogram
-"""
-
-
-helper.plot_histogram_ground_truth(y, "the complete dataset")
-
-
-############################################################################
-
-
-def Mean_learning(sub_X_train, sub_y_train, X_test, y_test, filename=""):
+def Mean_training(sub_X_train, sub_y_train):
 
     """
     Mean value predictor
@@ -138,24 +110,38 @@ def Mean_learning(sub_X_train, sub_y_train, X_test, y_test, filename=""):
     Use the mean values of the training set groud truth as the low bound result
     """
 
-
     mean_values = np.mean(sub_y_train, axis=0)
-
 
     print("Mean value: " + str(mean_values))
 
+    return mean_values
+
+
+
+def Mean_fitting(mean_values, y_test):
 
     y_pred = np.zeros(y_test.shape)
 
+
     y_pred += mean_values
 
+    y_pred = np.interp(y_pred, (0, 1), (-15, 0))
 
-    MAE_acc, MAE_vox = helper.MAE(y_test, y_pred, filename+"_Mean_value")
-    ME_acc, ME_vox = helper.ME(y_test, y_pred, filename+"_Mean_value")
+    return y_pred
 
 
-    helper.plot(y_test, y_pred, filename+"_Mean_value")
-    helper.plot_histogram(y_test, y_pred, filename+"_Mean_value")
+
+def eval(y_test, y_pred, filename="", model="_Mean_value"):
+    """
+    evaluate
+    """
+
+    MAE_acc, MAE_vox = helper.MAE(y_test, y_pred, filename+model)
+    ME_acc, ME_vox = helper.ME(y_test, y_pred, filename+model)
+
+
+    helper.plot(y_test, y_pred, filename+model)
+    helper.plot_histogram(y_test, y_pred, filename+model)
 
 
     return (MAE_acc, MAE_vox, ME_acc, ME_vox), y_test, y_pred
@@ -171,7 +157,7 @@ SVR
 
 from sklearn.svm import SVR
 
-def SVR_learning(sub_X_train, sub_y_train, X_test, y_test, filename=""):
+def SVR_training(sub_X_train, sub_y_train):
     """
     #SVR_chained_acc_first
     """
@@ -182,24 +168,21 @@ def SVR_learning(sub_X_train, sub_y_train, X_test, y_test, filename=""):
 
     chain.fit(sub_X_train, sub_y_train)
 
+    return chain
+
+
+def SVR_fitting(chain, X_test):
+
     y_pred = chain.predict(X_test)
 
+    y_pred = np.interp(y_pred, (0, 1), (-15, 0))
 
-    MAE_acc, MAE_vox = helper.MAE(y_test, y_pred, filename+"_SVR")
-    ME_acc, ME_vox = helper.ME(y_test, y_pred, filename+"_SVR")
-
-    helper.plot(y_test, y_pred, filename+"_SVR")
-
-    helper.plot_histogram(y_test, y_pred, filename+"_SVR")
+    return y_pred
 
 
-    return (MAE_acc, MAE_vox, ME_acc, ME_vox), y_test, y_pred
 
 
-#SVR_learning(sub_X_train, sub_y_train, X_test, y_test)
-
-
-def machine_learning(X, y, file_dict):
+def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=None):
     """
     apply machine learning algorithms on each file
     """
@@ -217,36 +200,50 @@ def machine_learning(X, y, file_dict):
 
     start = time.time()
 
+    if extra:
+        X_extra, y_extra, o_o, o__o, scaler = helper.preprocessing(X_extra, y_extra, X_extra, y_extra)
+        sub_X_train_extra = X_extra[::10]
+        sub_y_train_extra = y_extra[::10]
+
+        mean_values = Mean_training(sub_X_train_extra, sub_y_train_extra)
+        chain = SVR_training(sub_X_train_extra, sub_y_train_extra)
+
+
     for filename in file_dict.keys():
 
         X_test = X[file_dict[filename][0] : file_dict[filename][1]]
         y_test = y[file_dict[filename][0] : file_dict[filename][1]]
 
-
         X_train = np.concatenate((X[: file_dict[filename][0]], X[file_dict[filename][1] :]), axis=0)
         y_train = np.concatenate((y[: file_dict[filename][0]], y[file_dict[filename][1] :]), axis=0)
 
+        if not extra:
+            X_train, y_train, X_test, y_test, scaler = helper.preprocessing(X_train, y_train, X_test, y_test)
+            sub_X_train = X_train[::60]
+            sub_y_train = y_train[::60]
+        else:
+            y_test = np.where(y_test > 0, 0, y_test)
+            y_test = np.where(y_test < -15, -15, y_test)
+            X_test = scaler.transform(X_test)
 
-        y_train, X_train = helper.uniform(y_train, X_train)
 
-        print(y_train.size)
 
-        sub_X_train = X_train[0:-1:60]
-        sub_y_train = y_train[0:-1:60]
+        if not extra:
+            mean_values = Mean_training(sub_X_train, sub_y_train)
+        y_pred = Mean_fitting(mean_values, y_test)
 
-        #Normalization
-        scaler = StandardScaler()
-        scaler.fit(sub_X_train)
+        error_mean, y_test_mean, y_pred_mean = eval(y_test, y_pred, filename, model="_Mean_value")
 
-        sub_X_train = scaler.transform(sub_X_train)
-        X_test = scaler.transform(X_test)
+        if not extra:
+            chain = SVR_training(sub_X_train, sub_y_train)
 
-        error_mean, y_test_mean, y_pred_mean = Mean_learning(sub_X_train, sub_y_train, X_test, y_test, filename)
-        error_SVR, y_test_SVR, y_pred_SVR = SVR_learning(sub_X_train, sub_y_train, X_test, y_test, filename)
+        y_pred = SVR_fitting(chain, X_test)
+
+        error_SVR, y_test_SVR, y_pred_SVR = eval(y_test, y_pred, filename, model="_SVR")
+
 
         error_mean_matrix[idx] = error_mean
         error_SVR_matrix[idx] = error_SVR
-
 
         plot_error_histogram = True
 
@@ -263,7 +260,7 @@ def machine_learning(X, y, file_dict):
                 y_pred_mean_total = np.concatenate([y_pred_mean_total, y_pred_mean], axis=0)
                 y_pred_SVR_total = np.concatenate([y_pred_SVR_total, y_pred_SVR], axis=0)
 
-        #if idx >= 0: break
+        if idx >= 30: break
         idx += 1
 
     end = time.time()
@@ -301,7 +298,68 @@ def machine_learning(X, y, file_dict):
     return None
 
 
-machine_learning(X, y, file_dict)
+
+
+############################################################################
+
+ground_truth_path = "../Ground_truth/MIR-1K"
+feature_path = "../Features/MIR-1K"
+
+
+
+
+#X, y, file_dict = data_creation(ground_truth_path, feature_path)
+
+#np.save("../Data/"+"X.npy", X)
+#np.save("../Data/"+"y.npy", y)
+#np.save("../Data/"+"file_dict.npy", file_dict)
+
+# Load
+X = np.load("../Data/"+"X.npy")
+y = np.load("../Data/"+"y.npy")
+file_dict = np.load("../Data/"+"file_dict.npy",allow_pickle='TRUE').item()
+
+
+
+
+############################################################################
+
+"""
+Plot ground truth histogram
+"""
+
+
+helper.plot_histogram_ground_truth(y, "the complete dataset")
+
+############################################################################
+
+
+ground_truth_path = "../Ground_truth/musdb18hq"
+feature_path = "../Features/musdb18hq"
+
+#X_extra, y_extra, file_dict_extra = data_creation(ground_truth_path, feature_path)
+
+#np.save("../Data/"+"X_extra.npy", X_extra)
+#np.save("../Data/"+"y_extra.npy", y_extra)
+#np.save("../Data/"+"file_dict_extra.npy", file_dict_extra)
+
+# Load
+X_extra = np.load("../Data/"+"X_extra.npy")
+y_extra = np.load("../Data/"+"y_extra.npy")
+#file_dict_extra = np.load("../Results/"+"file_dict_extra.npy",allow_pickle='TRUE').item()
+
+
+
+machine_learning_N_Fold(X, y, file_dict, True, X_extra, y_extra)
+
+
+#machine_learning_N_Fold(X, y, file_dict)
+
+#quit()
+
+
+
+############################################################################
 
 
 error_mean_matrix = np.load('../Results/error_mean.npy')

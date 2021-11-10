@@ -269,4 +269,38 @@ take some small steps
 Last week:
 
 1. Get the MUSDB dataset and running, results are funny but not surprising
-2.
+    1. Because the ground  truth distribution is different, it's hard to compare with the previous experiments, need to evalute on the same dataset
+2. Do the truncation below -15dB
+3. Scaling the input ground truth for training (-15, 0) to (0, 1) getting worse MAE, but it fits better for edge cases. Better ME result.
+4. apply MuSDB trained model to MIR-1k, bad results
+
+
+apply MuSDB trained model to MIR-1k
+
+VGG?
+
+
+* * *
+
+MUSDB dataset, evaluated on 30 files and the subset of the rest as trainining set(around 36000 data points)
+error_mean_value_average
+vox_MAE        acc_MAE     vox_ME       acc_ME
+[  1.10161774  68.81741637  10.02292489 150.19677982]
+
+
+error_SVR_average
+vox_MAE        acc_MAE     vox_ME       acc_ME
+[  0.75647311  41.93878386  10.1346816  168.52597514]
+
+
+From MUSDB to MIR-1k, evaluate on the first 30 files
+
+error_mean_value_average
+vox_MAE        acc_MAE     vox_ME       acc_ME
+[ 1.10951481  4.92782653  3.88809626 18.30719372]
+
+error_SVR_average
+vox_MAE        acc_MAE     vox_ME       acc_ME
+[ 1.39899926  4.28260407  4.63746981 19.10009475]
+
+* * *

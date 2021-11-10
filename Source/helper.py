@@ -3,7 +3,29 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import max_error
 import random
+from sklearn.preprocessing import StandardScaler
 
+def preprocessing(X_train, y_train, X_test, y_test):
+
+    y_train = np.where(y_train > 0, 0, y_train) #truncate everything above 0dB
+    y_test = np.where(y_test > 0, 0, y_test)
+
+    y_train = np.where(y_train < -15, -15, y_train) #truncate everything below -15dB
+    y_test = np.where(y_test < -15, -15, y_test)
+
+
+    y_train = np.interp(y_train, (-15, 0), (0, 1))
+
+    #y_train, X_train = helper.uniform(y_train, X_train)
+
+    #Normalization
+    scaler = StandardScaler()
+    scaler.fit(X_train)
+
+    X_train = scaler.transform(X_train)
+    X_test = scaler.transform(X_test)
+
+    return X_train, y_train, X_test, y_test, scaler
 
 
 
@@ -30,14 +52,14 @@ def uniform(y_train, X_train):
     plot_histogram_ground_truth(y_train)
 
 
-    mean = np.mean(y_train.T[0]) #acc
-    var = np.var(y_train.T[0])
-    size = y_train.T[0].shape[0]
+    mean = np.mean(y_train.T[1]) #acc
+    var = np.var(y_train.T[1])
+    size = y_train.T[1].shape[0]
     a = 1
     low_bound = mean - a * var
     high_bound = mean + a * var
 
-    y_train_sorted = np.sort(y_train.T[0])
+    y_train_sorted = np.sort(y_train.T[1])
 
     low_bound_diff_array = np.abs(y_train_sorted - low_bound)
     low_bound_index = low_bound_diff_array.argmin()
@@ -254,7 +276,7 @@ def plot_histogram_ground_truth(y, title=""):
 
     n, bins, patches = ax.hist(y.T[0], bins=1000, density=1)
 
-    ax.set_xlim([-10, 0])
+    ax.set_xlim([0, -20])
 
 
     ax.set_xlabel('Loudness in dB')
@@ -262,8 +284,9 @@ def plot_histogram_ground_truth(y, title=""):
     ax.set_title('Histogram of Accompaniment Loudness' + "_" + title)
 
     # Tweak spacing to prevent clipping of ylabel
-    #fig.tight_layout()
+    fig.tight_layout()
     #plt.show()
+    plt.savefig("../Plots/Ground_truth_historgram/" + title + "accompaniment" + '.png')
     plt.close()
 
 
@@ -273,15 +296,17 @@ def plot_histogram_ground_truth(y, title=""):
 
     n, bins, patches = ax.hist(y.T[1], bins=3000, density=1)
 
-    ax.set_xlim([-10, 0])
+    ax.set_xlim([0, -20])
 
     ax.set_xlabel('Loudness in dB')
     ax.set_ylabel('Probability density')
     ax.set_title('Histogram of Vocal Loudness'+ "_" + title)
 
     # Tweak spacing to prevent clipping of ylabel
-    #fig.tight_layout()
+    fig.tight_layout()
     #plt.show()
+    plt.savefig("../Plots/Ground_truth_historgram/" + title + "vocal" + '.png')
+
     plt.close()
 
 
