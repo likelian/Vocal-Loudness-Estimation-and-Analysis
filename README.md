@@ -214,14 +214,10 @@ Last week:
 6. More uniform distribution (kind of)
 
 
-error_mean_value_average
-vox_MAE        acc_MAE     vox_ME       acc_ME
-[ 0.88644353  1.16208117  3.39344598 13.47482205]
-
-
-error_SVR_average
-vox_MAE        acc_MAE     vox_ME       acc_ME
-[ 0.77124489  0.99434226  3.02321448 13.07296623]
+| average over each file (in dB) | vox_MAE | acc_MAE | vox_ME | acc_ME |
+| --- | --- | --- | --- | --- |
+| mean value prediction error | 0.88644353 | 1.16208117 | 3.39344598 | 13.47482205|
+| SVR prediction error | **0.77124489** | **0.99434226** | **3.02321448** | **13.07296623**|
 
 
 Next week:
@@ -280,40 +276,34 @@ apply MuSDB trained model to MIR-1k
 VGG?
 
 
-* * *
+#### Results
 
 MUSDB dataset, evaluated on 30 files and the subset of the rest as trainining set(around 36000 data points)
-error_mean_value_average
-vox_MAE        acc_MAE     vox_ME       acc_ME
-[  1.10161774  68.81741637  10.02292489 150.19677982]
+(Not truncated yet)
 
+| average over each file (in dB) | vox_MAE | acc_MAE | vox_ME | acc_ME |
+| --- | --- | --- | --- | --- |
+| mean value prediction error| 1.10161774 | 68.81741637 | **10.02292489** |**150.19677982**|
+| SVR prediction error |  **0.75647311** | **41.93878386** | 10.1346816 | 168.52597514 |
 
-error_SVR_average
-vox_MAE        acc_MAE     vox_ME       acc_ME
-[  0.75647311  41.93878386  10.1346816  168.52597514]
 
 
 From MUSDB to MIR-1k, evaluate on the first 30 files
+ok, WTF!!! The plots are just random  nonsense too. what's been learned from MUSDB doesn't apply to  MIR-1k. MUSDB sounds pretty diverse by itsself, wtf. Why did I choose to do the vocal loudness prediction at all, humans are not the same.. I should just predict bass guitar loudness or whatever, has to be a easier task.
 
-error_mean_value_average
-vox_MAE        acc_MAE     vox_ME       acc_ME
-[ 1.10951481  4.92782653  3.88809626 18.30719372]
-
-error_SVR_average
-vox_MAE        acc_MAE     vox_ME       acc_ME
-[ 1.39899926  4.28260407  4.63746981 19.10009475]
+| average over each file (in dB) | vox_MAE | acc_MAE | vox_ME | acc_ME |
+| --- | --- | --- | --- | --- |
+| mean value prediction error | **1.10951481** | 4.92782653 | **3.88809626** | **18.30719372**|
+| SVR prediction error | 1.39899926 | **4.28260407** | 4.63746981 | 19.10009475|
 
 
 Cheating!!!!
 From MUSDB to MIR-1k, evaluate on the first 30 files
 Some MIR-1K samples are mixed with in the training set, including the test set. So, a lot better, yeah,,
 
-
-error_mean_value_average
-vox_MAE        acc_MAE     vox_ME       acc_ME
-[0.87822128 2.68761465 3.42661131 7.21142468]
-error_SVR_average
-vox_MAE        acc_MAE     vox_ME       acc_ME
-[1.13083139 1.89660596 3.15996962 7.43217401]
+| average over each file (in dB) | vox_MAE | acc_MAE | vox_ME | acc_ME |
+| --- | --- | --- | --- | --- |
+| mean value prediction error |**0.87822128** | 2.68761465 | 3.42661131 | **7.21142468**|
+| SVR prediction error |1.13083139 | **1.89660596** | **3.15996962** | 7.43217401|
 
 * * *
