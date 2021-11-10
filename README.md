@@ -303,4 +303,17 @@ error_SVR_average
 vox_MAE        acc_MAE     vox_ME       acc_ME
 [ 1.39899926  4.28260407  4.63746981 19.10009475]
 
+
+Cheating!!!!
+From MUSDB to MIR-1k, evaluate on the first 30 files
+Some MIR-1K samples are mixed with in the training set, including the test set. So, a lot better, yeah,,
+
+
+error_mean_value_average
+vox_MAE        acc_MAE     vox_ME       acc_ME
+[0.87822128 2.68761465 3.42661131 7.21142468]
+error_SVR_average
+vox_MAE        acc_MAE     vox_ME       acc_ME
+[1.13083139 1.89660596 3.15996962 7.43217401]
+
 * * *
