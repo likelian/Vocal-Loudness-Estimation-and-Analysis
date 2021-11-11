@@ -125,7 +125,7 @@ def Mean_fitting(mean_values, y_test):
 
     y_pred += mean_values
 
-    y_pred = np.interp(y_pred, (0, 1), (-15, 0))
+    #y_pred = np.interp(y_pred, (0, 1), (-15, 0))
 
     return y_pred
 
@@ -175,7 +175,7 @@ def SVR_fitting(chain, X_test):
 
     y_pred = chain.predict(X_test)
 
-    y_pred = np.interp(y_pred, (0, 1), (-15, 0))
+    #y_pred = np.interp(y_pred, (0, 1), (-15, 0))
 
     return y_pred
 
@@ -203,11 +203,13 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
     if extra:
 
         X_extra, y_extra, o_o, o__o, scaler = helper.preprocessing(X_extra, y_extra, X_extra, y_extra)
-        sub_X_train_extra = X_extra[::100]
-        sub_y_train_extra = y_extra[::100]
+        sub_X_train_extra = X_extra[::10]
+        sub_y_train_extra = y_extra[::10]
 
+        start_MUSDB = time.time()
         mean_values = Mean_training(sub_X_train_extra, sub_y_train_extra)
         chain = SVR_training(sub_X_train_extra, sub_y_train_extra)
+        end_MUSDB = time.time()
 
 
     for filename in file_dict.keys():
@@ -295,6 +297,8 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
     np.savetxt('../Results/error_SVR.txt', error_SVR_matrix)
 
     print("Total time:" + str(end - start) + "\n")
+
+    print("Total MUSDB time:" + str(end_MUSDB - start_MUSDB) + "\n")
 
     return None
 

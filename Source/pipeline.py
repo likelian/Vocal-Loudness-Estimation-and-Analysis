@@ -34,23 +34,14 @@ feature_path = "../Features/musdb18hq/"
 #    if counter >= 1: break;
 
 
-#feature_extraction.feature_extraction(mixture_audio_path, feature_path)
+feature_extraction.feature_extraction(mixture_audio_path, feature_path)
 
 
 
-quit()
+#quit()
 
 
 ############################################################################
 
 
-ground_truth_path = "../Ground_truth/MIR-1K"
-feature_path = "../Features/MIR-1K"
-
-X, y, file_dict = machine_learning.data_creation(ground_truth_path, feature_path)
-
-helper.plot_histogram_ground_truth(y, "the complete dataset")
-
-
-
-#os.system('python3 machine_learning.py')
+os.system('python3 machine_learning.py')

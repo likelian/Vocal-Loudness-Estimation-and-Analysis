@@ -214,7 +214,7 @@ Last week:
 6. More uniform distribution (kind of)
 
 
-| average over each file (in dB) | vox_MAE | acc_MAE | vox_ME | acc_ME |
+| average over each file (in dB) | acc_MAE | vox_MAE | acc_ME | vox_ME |
 | --- | --- | --- | --- | --- |
 | mean value prediction error | 0.88644353 | 1.16208117 | 3.39344598 | 13.47482205|
 | SVR prediction error | **0.77124489** | **0.99434226** | **3.02321448** | **13.07296623**|
@@ -281,7 +281,7 @@ VGG?
 MUSDB dataset, evaluated on 30 files and the subset of the rest as trainining set(around 36000 data points)
 (Not truncated yet)
 
-| average over each file (in dB) | vox_MAE | acc_MAE | vox_ME | acc_ME |
+| average over each file (in dB) | acc_MAE | vox_MAE | acc_ME | vox_ME |
 | --- | --- | --- | --- | --- |
 | mean value prediction error| 1.10161774 | 68.81741637 | **10.02292489** |**150.19677982**|
 | SVR prediction error |  **0.75647311** | **41.93878386** | 10.1346816 | 168.52597514 |
@@ -292,7 +292,7 @@ From MUSDB (1%) to MIR-1k, evaluate on the first 30 files
 Smaller training set is actually better,,
 ok, WTF!!! The plots are just random  nonsense too. what's been learned from MUSDB doesn't apply to  MIR-1k. MUSDB sounds pretty diverse by itsself, wtf. Why did I choose to do the vocal loudness prediction at all, humans are not the same.. I should just predict bass guitar loudness or whatever, has to be a easier task.
 
-| average over each file (in dB) | vox_MAE | acc_MAE | vox_ME | acc_ME |
+| average over each file (in dB) | acc_MAE | vox_MAE | acc_ME | vox_ME |
 | --- | --- | --- | --- | --- |
 | mean value prediction error | **1.123005** | 4.81246986 | **3.90860591** | **7.61470019**|
 | SVR prediction error | 1.37235076 | **3.55712374** | 4.14594289 | 8.26322904|
@@ -303,9 +303,24 @@ Cheating!!!!
 From MUSDB to MIR-1k, evaluate on the first 30 files
 Some MIR-1K samples are mixed with in the training set, including the test set. So, a lot better, yeah,,
 
-| average over each file (in dB) | vox_MAE | acc_MAE | vox_ME | acc_ME |
+| average over each file (in dB) | acc_MAE | vox_MAE | acc_ME | vox_ME |
 | --- | --- | --- | --- | --- |
 | mean value prediction error |**0.87822128** | 2.68761465 | 3.42661131 | **7.21142468**|
 | SVR prediction error |1.13083139 | **1.89660596** | **3.15996962** | 7.43217401|
+
+
+From MUSDB (1%) to MIR-1k, evaluate on the first 30 files
+Add VGGish embeddings as features
+| average over each file (in dB) | acc_MAE | vox_MAE | acc_ME | vox_ME |
+| --- | --- | --- | --- | --- |
+| mean value prediction error | 1.123005 | 4.81246986 | 3.90860591 | 7.61470019|
+| SVR prediction error |**0.81828929** | **2.65447505** | **3.24190368** | **7.66551048**|
+
+From MUSDB (10%) to MIR-1k, evaluate on the first 30 files
+Add VGGish embeddings as features
+| average over each file (in dB) | acc_MAE | vox_MAE | acc_ME | vox_ME |
+| --- | --- | --- | --- | --- |
+| mean value prediction error | 1.10947716 | 4.74952743 | 3.88809626 |**7.54861424** |
+| SVR prediction error | **0.87997608** |  **2.21083813** | **3.35388671** |7.80562337|
 
 * * *

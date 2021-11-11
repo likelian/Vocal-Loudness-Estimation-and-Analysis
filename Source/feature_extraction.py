@@ -3,11 +3,16 @@ import numpy as np
 import json
 import os
 
+
 import librosa
 import sys
 sys.path.append('/usr/local/lib/python3.8/site-packages')
 import essentia
 import essentia.standard
+
+import tensorflow as tf
+import tensorflow_hub as hub
+model = hub.load('https://tfhub.dev/google/vggish/1')
 
 
 
@@ -21,6 +26,53 @@ def left_channel(audio):
 
 
 ########################################################
+
+def vggish(audio, sampleRate, model):
+    """
+    extract the mean of 128 VGG embeddings in 3s window
+    """
+    #sampleRate
+    resample = essentia.standard.Resample(inputSampleRate=sampleRate, outputSampleRate=15600)
+    audio_resampled = resample(audio)
+
+    #sTensorflowPredictVGGish = essentia.standard.TensorflowPredictVGGish()
+    #embeddings = TensorflowPredictVGGish(audio_resampled)
+    embedding_dict = {}
+    vgg_mean_size = 0
+    for idx in np.arange(10):
+        embeddings = model(audio_resampled[idx*1560:]).numpy()
+
+        embeddings_0 = embeddings[::3]
+        embeddings_1 = embeddings[1:][::3]
+        embeddings_2 = embeddings[2:][::3]
+
+        max_length = max(embeddings_0.shape[0], embeddings_1.shape[0], embeddings_2.shape[0])
+
+        embeddings_0 = np.pad(embeddings_0, ((0, max_length-embeddings_0.shape[0]+1), (0, 0)), 'constant')
+        embeddings_1 = np.pad(embeddings_1, ((0, max_length-embeddings_1.shape[0]+1), (0, 0)), 'constant')
+        embeddings_2 = np.pad(embeddings_2, ((0, max_length-embeddings_2.shape[0]+1), (0, 0)), 'constant')
+
+        embeddings_mean_0 = np.mean([embeddings_0[:-1], embeddings_1[:-1], embeddings_2[:-1]], axis=0)
+        embeddings_mean_1 = np.mean([embeddings_0[1:], embeddings_1[:-1], embeddings_2][:-1], axis=0)
+        embeddings_mean_2 = np.mean([embeddings_0[1:], embeddings_1[1:], embeddings_2[:-1]], axis=0)
+
+        embeddings_mean = np.zeros([embeddings_mean_0.shape[0]*3, 128])
+        embeddings_mean[np.arange(embeddings_mean_0.shape[0])*3] = embeddings_mean_0
+        embeddings_mean[np.arange(embeddings_mean_1.shape[0])*3+1] = embeddings_mean_1
+        embeddings_mean[np.arange(embeddings_mean_2.shape[0])*3+2] = embeddings_mean_2
+
+
+        embedding_dict[idx] = embeddings_mean
+        vgg_mean_size += embeddings_mean.shape[0]
+
+    vggish_mean = np.zeros([vgg_mean_size+50, 128])
+
+    for idx in np.arange(10):
+        vggish_mean[np.arange(embedding_dict[idx].shape[0])*10+idx] = embedding_dict[idx]
+
+    return vggish_mean
+
+
 
 
 
@@ -149,10 +201,12 @@ def extract_features(audio_path, filename, feature_path = "../Features/MIR-1K/")
     audio_stereo = audio
     audio = left_channel(audio)
 
-
-    mfcc_mean = MFCC(audio, sampleRate, audio_stereo)
     shortTermLUFS = shortTermLoudness(audio_stereo, sampleRate, HS=0.1)
-    spectral_centroid = extract_spectral_centroid(audio, sampleRate)
+    vggish_mean = vggish(audio, sampleRate, model)
+    vggish_mean = vggish_mean[:shortTermLUFS.shape[0]-vggish_mean.shape[0]]
+    mfcc_mean = MFCC(audio, sampleRate, audio_stereo)
+    #spectral_centroid = extract_spectral_centroid(audio, sampleRate)
+
 
     if mfcc_mean.shape[0] != shortTermLUFS.shape[0]:
         mfcc_mean = mfcc_mean[:-1]
@@ -171,6 +225,7 @@ def extract_features(audio_path, filename, feature_path = "../Features/MIR-1K/")
 
     feature_dict[filename_noExt+"_mfcc_mean"] = mfcc_mean.tolist()
     feature_dict[filename_noExt+"_shortLUFS"] = shortTermLUFS.tolist()
+    feature_dict[filename_noExt+"_vggish_mean"] = vggish_mean.tolist()
     #feature_dict[filename_noExt+"_spectral_centroid"] = spectral_centroid.tolist()
 
 
@@ -180,7 +235,6 @@ def extract_features(audio_path, filename, feature_path = "../Features/MIR-1K/")
 
 
     #print(mfcc_mean.shape)
-
 
 
 

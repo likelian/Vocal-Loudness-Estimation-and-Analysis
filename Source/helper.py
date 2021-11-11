@@ -14,9 +14,9 @@ def preprocessing(X_train, y_train, X_test, y_test):
     y_test = np.where(y_test < -15, -15, y_test)
 
 
-    y_train = np.interp(y_train, (-15, 0), (0, 1))
+    #y_train = np.interp(y_train, (-15, 0), (0, 1))
 
-    #y_train, X_train = helper.uniform(y_train, X_train)
+    #y_train, X_train = uniform(y_train, X_train)
 
     #Normalization
     scaler = StandardScaler()
