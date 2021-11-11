@@ -269,12 +269,17 @@ Last week:
 2. Do the truncation below -15dB
 3. Scaling the input ground truth for training (-15, 0) to (0, 1) getting worse MAE, but it fits better for edge cases. Better ME result.
 4. apply MuSDB trained model to MIR-1k, bad results
+5. VGGish, a lot better
+6. More training data, better
+7. Change the chain order to vox first, worse
+8. Change dB to amplitude improve xox_MAE by 0.74dB
 
-
-apply MuSDB trained model to MIR-1k
-
-VGG?
-
+hyperparameter tuning
+Mel-spectrogram
+take out features
+Change the distribution of the training set
+Linear predictive model to improve the prediction from previous data points (or future)
+overlapped VGGish within the same 3s window (now is the mean of 1st, 2nd and 3rd VGGish frame)
 
 #### Results
 
@@ -316,11 +321,23 @@ Add VGGish embeddings as features
 | mean value prediction error | 1.123005 | 4.81246986 | 3.90860591 | 7.61470019|
 | SVR prediction error |**0.81828929** | **2.65447505** | **3.24190368** | **7.66551048**|
 
+
 From MUSDB (10%) to MIR-1k, evaluate on the first 30 files
 Add VGGish embeddings as features
 | average over each file (in dB) | acc_MAE | vox_MAE | acc_ME | vox_ME |
 | --- | --- | --- | --- | --- |
 | mean value prediction error | 1.10947716 | 4.74952743 | 3.88809626 |**7.54861424** |
 | SVR prediction error | **0.87997608** |  **2.21083813** | **3.35388671** |7.80562337|
+
+
+From MUSDB (1%) to MIR-1k, evaluate on the first 30 files
+Add VGGish embeddings as features
+Change dB to amplitude
+| average over each file (in dB) | acc_MAE | vox_MAE | acc_ME | vox_ME |
+| --- | --- | --- | --- | --- |
+| mean value prediction error | 1.20300631  | 3.73811387 | 4.02256869 | **6.72337535**|
+| SVR prediction error | **0.95490828** | **1.91196574** | **3.19927793** | 7.59682202|
+
+
 
 * * *

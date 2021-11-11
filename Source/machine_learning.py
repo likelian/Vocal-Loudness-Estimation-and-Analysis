@@ -125,6 +125,8 @@ def Mean_fitting(mean_values, y_test):
 
     y_pred += mean_values
 
+    y_pred = 20 * np.log10(y_pred) #convert amplitude to dB
+
     #y_pred = np.interp(y_pred, (0, 1), (-15, 0))
 
     return y_pred
@@ -175,6 +177,8 @@ def SVR_fitting(chain, X_test):
 
     y_pred = chain.predict(X_test)
 
+    y_pred = 20 * np.log10(y_pred) #convert amplitude to dB
+
     #y_pred = np.interp(y_pred, (0, 1), (-15, 0))
 
     return y_pred
@@ -203,8 +207,10 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
     if extra:
 
         X_extra, y_extra, o_o, o__o, scaler = helper.preprocessing(X_extra, y_extra, X_extra, y_extra)
-        sub_X_train_extra = X_extra[::10]
-        sub_y_train_extra = y_extra[::10]
+
+
+        sub_X_train_extra = X_extra[::100]
+        sub_y_train_extra = y_extra[::100]
 
         start_MUSDB = time.time()
         mean_values = Mean_training(sub_X_train_extra, sub_y_train_extra)
@@ -230,12 +236,18 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
             X_test = scaler.transform(X_test)
 
 
-
         if not extra:
             mean_values = Mean_training(sub_X_train, sub_y_train)
         y_pred = Mean_fitting(mean_values, y_test)
 
+
+
+
+
         error_mean, y_test_mean, y_pred_mean = eval(y_test, y_pred, filename, model="_Mean_value")
+
+
+
 
         if not extra:
             chain = SVR_training(sub_X_train, sub_y_train)

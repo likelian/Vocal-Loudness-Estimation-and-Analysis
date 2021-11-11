@@ -13,8 +13,9 @@ def preprocessing(X_train, y_train, X_test, y_test):
     y_train = np.where(y_train < -15, -15, y_train) #truncate everything below -15dB
     y_test = np.where(y_test < -15, -15, y_test)
 
-
     #y_train = np.interp(y_train, (-15, 0), (0, 1))
+
+    y_extra = 10**(y_extra/20) #convert dB to amplitude
 
     #y_train, X_train = uniform(y_train, X_train)
 
