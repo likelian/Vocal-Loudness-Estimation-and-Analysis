@@ -1,6 +1,7 @@
 import soundfile as sf
 import numpy as np
 import sys
+from scipy import signal
 sys.path.append('/usr/local/lib/python3.8/site-packages')
 import essentia
 import essentia.standard
@@ -25,11 +26,19 @@ def ground_truth(audio_path, ground_truth_path, mixture_path, filename):
     str_rand = "_" + str(rand_dB)
     mix = (acc.T + vox.T).T #mono_sum
 
+
+    filter_bank(acc, sampleRate)
+
+
     acc_shortTermLoudness = shortTermLoudness(acc, SR=sampleRate)
     vox_shortTermLoudness = shortTermLoudness(vox, SR=sampleRate)
     mix_shortTermLoudness = shortTermLoudness(mix, SR=sampleRate)
     accREL_shortTermLoudness = acc_shortTermLoudness - mix_shortTermLoudness
     voxREL_shortTermLoudness = vox_shortTermLoudness - mix_shortTermLoudness
+
+
+
+
 
     timeInSec = np.arange(acc_shortTermLoudness.size) * 0.1
 
@@ -62,6 +71,45 @@ def shortTermLoudness(buffer, SR=44100, HS=0.1):
     LoudnessEBUR128 = essentia.standard.LoudnessEBUR128(sampleRate=SR, hopSize=HS)
     shortTermLoudness = LoudnessEBUR128(buffer)[1]
     return shortTermLoudness[:-1]
+
+
+
+def filter_bank(audio, fs):
+    """
+    2nd order butterworth bandpass filter
+    """
+    fcs = [31.5, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000] #ISO standard octave-band center frequencies
+
+    audio = audio.T[0].T#/2 + audio.T[1].T/2
+    print(audio.shape)
+    print(np.max(audio))
+    print(audio)
+
+    for fc in fcs:
+        #print(fc*2**(-0.5))
+        import matplotlib.pyplot as plt
+        #plt.plot(audio)
+        #plt.show()
+        #plt.close()
+        sos = signal.butter(8, [fc*2**(-0.5), fc*2**0.5], 'bp', fs, output='sos') #second order sections
+        filtered = signal.sosfilt(sos, audio)
+        plt.plot(filtered)
+        plt.show()
+
+        print(filtered)
+        print(np.max(filtered))
+        sqarted = filtered**2
+
+        #print(sqarted)
+        #print(sqarted.shape)
+        #print(fs)
+        blocked = np.array([sqarted[i:i+fs*3] for i in range(len(sqarted)-fs*3)][::int(fs/10)]) #3s overlaped blocks
+        #dB
+        #print(blocked.shape)
+
+        quit()
+
+    return filtered
 
 
 ################################################################################################################

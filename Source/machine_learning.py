@@ -164,7 +164,7 @@ def SVR_training(sub_X_train, sub_y_train):
     #SVR_chained_acc_first
     """
 
-    regr = make_pipeline(SVR(C=1.0, epsilon=0.2))
+    regr = make_pipeline(SVR(C=1.0, epsilon=0.2, kernel='rbf'))
 
     chain = RegressorChain(base_estimator=regr, order=[0, 1])
 
@@ -208,9 +208,11 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
 
         X_extra, y_extra, o_o, o__o, scaler = helper.preprocessing(X_extra, y_extra, X_extra, y_extra)
 
-
         sub_X_train_extra = X_extra[::100]
         sub_y_train_extra = y_extra[::100]
+
+        print("sub_X_train_extra")
+        print(sub_X_train_extra.shape)
 
         start_MUSDB = time.time()
         mean_values = Mean_training(sub_X_train_extra, sub_y_train_extra)

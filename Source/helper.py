@@ -15,7 +15,7 @@ def preprocessing(X_train, y_train, X_test, y_test):
 
     #y_train = np.interp(y_train, (-15, 0), (0, 1))
 
-    y_extra = 10**(y_extra/20) #convert dB to amplitude
+    y_train = 10**(y_train/20) #convert dB to amplitude
 
     #y_train, X_train = uniform(y_train, X_train)
 
