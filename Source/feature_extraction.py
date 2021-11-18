@@ -35,8 +35,7 @@ def vggish(audio, sampleRate, model):
     resample = essentia.standard.Resample(inputSampleRate=sampleRate, outputSampleRate=15600)
     audio_resampled = resample(audio)
 
-    #sTensorflowPredictVGGish = essentia.standard.TensorflowPredictVGGish()
-    #embeddings = TensorflowPredictVGGish(audio_resampled)
+
     embedding_dict = {}
     vgg_mean_size = 0
     for idx in np.arange(10):

@@ -27,17 +27,19 @@ def ground_truth(audio_path, ground_truth_path, mixture_path, filename):
     mix = (acc.T + vox.T).T #mono_sum
 
 
-    filter_bank(acc, sampleRate)
+
 
 
     acc_shortTermLoudness = shortTermLoudness(acc, SR=sampleRate)
+    print(acc_shortTermLoudness.shape)
+
+    filter_bank(acc, sampleRate)
+
+
     vox_shortTermLoudness = shortTermLoudness(vox, SR=sampleRate)
     mix_shortTermLoudness = shortTermLoudness(mix, SR=sampleRate)
     accREL_shortTermLoudness = acc_shortTermLoudness - mix_shortTermLoudness
     voxREL_shortTermLoudness = vox_shortTermLoudness - mix_shortTermLoudness
-
-
-
 
 
     timeInSec = np.arange(acc_shortTermLoudness.size) * 0.1
@@ -77,39 +79,48 @@ def shortTermLoudness(buffer, SR=44100, HS=0.1):
 def filter_bank(audio, fs):
     """
     2nd order butterworth bandpass filter
+
+    return:
+        a numpy array of (10, window_num)
+        window_num is the number of 3s sliding window of hop size of 0.1s
+        the value in rms_dB_bank is the rms of each window after each filter
     """
+
+    """
+    import matplotlib.pyplot as plt
+    #w, h = signal.sosfreqz(sos, worN=1500)
+    #plt.semilogx(w, 20 * np.log10(abs(h)))
+    #plt.title('Butterworth filter frequency response')
+    #plt.xlabel('Frequency [radians / second]')
+    #plt.ylabel('Amplitude [dB]')
+    #plt.margins(0, 0.1)
+    #plt.grid(which='both', axis='both')
+    #plt.axvline(100, color='green') # cutoff frequency
+    #plt.show()
+    #plt.close()
+    #sf.write("/Users/likelian/Desktop/bp.wav", filtered, fs)
+    """
+
+    audio = audio.T[0].T
+
     fcs = [31.5, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000] #ISO standard octave-band center frequencies
 
-    audio = audio.T[0].T#/2 + audio.T[1].T/2
-    print(audio.shape)
-    print(np.max(audio))
-    print(audio)
+    window_num = int(np.ceil(((len(audio)/fs)-3)*10))
+    rms_dB_bank = np.zeros((10, window_num))
 
-    for fc in fcs:
-        #print(fc*2**(-0.5))
-        import matplotlib.pyplot as plt
-        #plt.plot(audio)
-        #plt.show()
-        #plt.close()
-        sos = signal.butter(8, [fc*2**(-0.5), fc*2**0.5], 'bp', fs, output='sos') #second order sections
+    for idx, fc in enumerate(fcs):
+        Nyquist = fs/2
+        sos = signal.butter(2, [fc*2**(-0.5)/Nyquist, fc*2**0.5/Nyquist], 'bp', fs=fs, output='sos') #second order sections
         filtered = signal.sosfilt(sos, audio)
-        plt.plot(filtered)
-        plt.show()
-
-        print(filtered)
-        print(np.max(filtered))
         sqarted = filtered**2
-
-        #print(sqarted)
-        #print(sqarted.shape)
-        #print(fs)
         blocked = np.array([sqarted[i:i+fs*3] for i in range(len(sqarted)-fs*3)][::int(fs/10)]) #3s overlaped blocks
-        #dB
-        #print(blocked.shape)
+        rms = np.sqrt(np.mean(blocked, axis=1))
+        rms_dB = 20*np.log10(rms)
+        print(rms_dB)
+        rms_dB_bank[idx] = rms_dB
 
-        quit()
+    return rms_dB_bank
 
-    return filtered
 
 
 ################################################################################################################
