@@ -6,7 +6,7 @@ import os
 
 audio_path = "../Audio/MIR-1K"
 mixture_audio_path = "../Audio/Mixture/MIR-1K_mixture"
-ground_truth_path = "../Ground_truth/MIR-1K"
+ground_truth_path = "../Ground_truth/MIR-1K/"
 feature_path = "../Features/MIR-1K/"
 
 

@@ -27,20 +27,17 @@ def ground_truth(audio_path, ground_truth_path, mixture_path, filename):
     mix = (acc.T + vox.T).T #mono_sum
 
 
-
-
-
     acc_shortTermLoudness = shortTermLoudness(acc, SR=sampleRate)
-    print(acc_shortTermLoudness.shape)
-
-    filter_bank(acc, sampleRate)
-
-
     vox_shortTermLoudness = shortTermLoudness(vox, SR=sampleRate)
     mix_shortTermLoudness = shortTermLoudness(mix, SR=sampleRate)
     accREL_shortTermLoudness = acc_shortTermLoudness - mix_shortTermLoudness
     voxREL_shortTermLoudness = vox_shortTermLoudness - mix_shortTermLoudness
 
+
+    acc_bandRMS = filter_bank(acc, sampleRate)
+    vox_bandRMS = filter_bank(vox, sampleRate)
+    mix_bandRMS = filter_bank(mix, sampleRate)
+    acc_minus_vox_bandRMS =  acc_bandRMS - vox_bandRMS
 
     timeInSec = np.arange(acc_shortTermLoudness.size) * 0.1
 
@@ -52,6 +49,12 @@ def ground_truth(audio_path, ground_truth_path, mixture_path, filename):
     ground_truth[filename_noExt+"_mix_shortTermLoudness"] = mix_shortTermLoudness.tolist()
     ground_truth[filename_noExt+"_accREL_shortTermLoudness"] = accREL_shortTermLoudness.tolist()
     ground_truth[filename_noExt+"_voxREL_shortTermLoudness"] = voxREL_shortTermLoudness.tolist()
+
+    ground_truth[filename_noExt+"_acc_bandRMS"] = acc_bandRMS.tolist()
+    ground_truth[filename_noExt+"_vox_bandRMS"] = vox_bandRMS.tolist()
+    ground_truth[filename_noExt+"_mix_bandRMS"] = mix_bandRMS.tolist()
+    ground_truth[filename_noExt+"_acc_minus_vox_bandRMS"] = acc_minus_vox_bandRMS.tolist()
+
 
     with open(ground_truth_path + filename_noExt + str_rand + "_ground_truth.json", 'w') as outfile:
         json.dump(ground_truth, outfile)
@@ -103,20 +106,22 @@ def filter_bank(audio, fs):
 
     audio = audio.T[0].T
 
+    Nyquist = fs/2
     fcs = [31.5, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000] #ISO standard octave-band center frequencies
 
     window_num = int(np.ceil(((len(audio)/fs)-3)*10))
     rms_dB_bank = np.zeros((10, window_num))
 
     for idx, fc in enumerate(fcs):
-        Nyquist = fs/2
+
         sos = signal.butter(2, [fc*2**(-0.5)/Nyquist, fc*2**0.5/Nyquist], 'bp', fs=fs, output='sos') #second order sections
         filtered = signal.sosfilt(sos, audio)
+
         sqarted = filtered**2
         blocked = np.array([sqarted[i:i+fs*3] for i in range(len(sqarted)-fs*3)][::int(fs/10)]) #3s overlaped blocks
+
         rms = np.sqrt(np.mean(blocked, axis=1))
         rms_dB = 20*np.log10(rms)
-        print(rms_dB)
         rms_dB_bank[idx] = rms_dB
 
     return rms_dB_bank
@@ -126,7 +131,7 @@ def filter_bank(audio, fs):
 ################################################################################################################
 
 def ground_truth_generation_MIR_1K(audio_path = "../Audio/MIR-1K",
-                            ground_truth_path = "../Ground_truth/MIR-1K",
+                            ground_truth_path = "../Ground_truth/MIR-1K/",
                             mixture_path = "../Audio/Mixture/MIR-1K_mixture"):
 
     abs_audio_path = os.path.abspath(audio_path)
