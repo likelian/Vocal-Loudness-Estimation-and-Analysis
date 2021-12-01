@@ -272,7 +272,7 @@ Last week:
 5. VGGish, a lot better
 6. More training data, better
 7. Change the chain order to vox first, worse
-8. Change dB to amplitude improve xox_MAE by 0.74dB
+8. Change dB to amplitude improve vox_MAE by 0.74dB
 
 hyperparameter tuning
 Mel-spectrogram
@@ -280,6 +280,8 @@ take out features
 Change the distribution of the training set
 Linear predictive model to improve the prediction from previous data points (or future)
 overlapped VGGish within the same 3s window (now is the mean of 1st, 2nd and 3rd VGGish frame)
+Normalize audio?
+Stereo, Mono, much better? historical study then?
 
 #### Results
 
@@ -293,7 +295,7 @@ MUSDB dataset, evaluated on 30 files and the subset of the rest as trainining se
 
 
 
-From MUSDB (1%) to MIR-1k, evaluate on the first 30 files
+From MUSDB (1%,  349163 in total) to MIR-1k, evaluate on the first 30 files
 Smaller training set is actually better,,
 ok, WTF!!! The plots are just random  nonsense too. what's been learned from MUSDB doesn't apply to  MIR-1k. MUSDB sounds pretty diverse by itsself, wtf. Why did I choose to do the vocal loudness prediction at all, humans are not the same.. I should just predict bass guitar loudness or whatever, has to be a easier task.
 
@@ -340,4 +342,40 @@ Change dB to amplitude
 
 
 
+
 * * *
+
+### 11/18/2021
+
+Last week:
+1.implement octave filter-bank ground  truth generation
+
+
+* * *
+
+### 12/2/2021
+
+1. finish the implement octave filter-bank ground truth generation
+2. get some results below
+3. hpyerparamter tuning done
+4. rescale plot
+5. download dataset
+
+ epsilon=0.5 gets good vOx_MAE error, to 1.47302572, but the plot looks like not learning (write about this in the paper)
+
+
+error_mean_value_average
+[1.20159992 3.75770212 3.46821309 6.44283136 7.16969159 7.01351839
+ 6.9376155  6.91780435 6.65458289 6.65430868 6.4440393  6.02647054
+ 5.6512094  5.59728028 7.49654103 7.64127536 7.60841226 7.61417255
+ 7.5160469  7.53348001 7.63319786 7.62899682 7.64961382 7.91400494]
+error_SVR_average
+[ 1.17553875  1.6318592   3.29876137  6.66310404  6.49538656  6.73904507
+  6.81567892  6.67149224  6.51223159  6.42499827  6.38206768  6.5959431
+  6.80453076  6.73993086 14.04067191 11.42195893 11.05006235 12.48371131
+ 10.57942281 11.03499436 10.41475223 11.26099774 11.28394671 10.9547145 ]
+
+
+
+one loudness and frequency estimation of one file
+ 

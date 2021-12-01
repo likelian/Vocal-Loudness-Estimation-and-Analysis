@@ -7,6 +7,13 @@ import time
 import helper
 import matplotlib.pyplot as plt
 
+from sklearn.model_selection import GridSearchCV
+
+
+############################################################################
+
+
+
 
 
 ############################################################################
@@ -55,9 +62,29 @@ def data_creation(ground_truth_path, feature_path):
                     current_ground_truth_voxREL = np.array(ground_truth_dict[key])
                     ground_truth_voxREL = np.concatenate([ground_truth_voxREL, current_ground_truth_voxREL], axis=None)
 
+
                 if "vox_bandRMS" in key and "minus" not in key:
-                    current_ground_truth_bandRMS = np.array(ground_truth_dict[key]).T
-                    ground_truth_bandRMS = np.concatenate([ground_truth_bandRMS, current_ground_truth_bandRMS], axis=0)
+                    current_ground_truth_vox_abs_bandRMS = np.array(ground_truth_dict[key]).T
+
+                if '_mix_bandRMS' in key:
+                    current_ground_truth_mix_bandRMS = np.array(ground_truth_dict[key]).T
+
+                if "acc_minus_vox_bandRMS" in key:
+                    acc_minus_vox_bandRMS = np.array(ground_truth_dict[key]).T
+
+            current_ground_truth_bandRMS = current_ground_truth_vox_abs_bandRMS - current_ground_truth_mix_bandRMS
+
+            #print(filename)
+            #print(current_ground_truth_bandRMS)
+            #print(np.mean(acc_minus_vox_bandRMS, axis=0))
+            #print(np.mean(current_ground_truth_vox_abs_bandRMS, axis=0))
+            #print(np.mean(current_ground_truth_mix_bandRMS, axis=0))
+
+            #print(np.mean(current_ground_truth_bandRMS, axis=0))
+            #print(np.mean(current_ground_truth_voxREL, axis=0))
+            #print(np.mean(current_ground_truth_accREL, axis=0))
+
+            ground_truth_bandRMS = np.concatenate([ground_truth_bandRMS, current_ground_truth_bandRMS], axis=0)
 
 
 
@@ -176,8 +203,8 @@ def SVR_training(sub_X_train, sub_y_train):
     """
     #SVR_chained_acc_first
     """
-
-    regr = make_pipeline(SVR(C=1.0, epsilon=0.2, kernel='rbf'))
+    #{'C': 1, 'epsilon': 0.2, 'gamma': 0.001}  target acc
+    regr = make_pipeline(SVR(C=1, epsilon=0.2, kernel='rbf'))
 
     chain = RegressorChain(base_estimator=regr, order=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
 
@@ -190,7 +217,13 @@ def SVR_fitting(chain, X_test):
 
     y_pred = chain.predict(X_test)
 
+    y_pred = np.where(y_pred <= 0.00001, 0.000001, y_pred)
+    #y_test.T[:2] = np.where(y_test.T[:2] < -15, -15, y_test.T[:2])
+    y_pred = np.where(y_pred >= 1, 1, y_pred)
+
+    #y_pred = np.nan_to_num(y_pred, nan=0.5, posinf=1, neginf=0.01)
     y_pred = 20 * np.log10(y_pred) #convert amplitude to dB
+    y_pred = np.nan_to_num(y_pred, nan=-15, posinf=0, neginf=-15)
 
     #y_pred = np.interp(y_pred, (0, 1), (-15, 0))
 
@@ -221,8 +254,8 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
 
         X_extra, y_extra, o_o, o__o, scaler = helper.preprocessing(X_extra, y_extra, X_extra, y_extra)
 
-        sub_X_train_extra = X_extra[::100]
-        sub_y_train_extra = y_extra[::100]
+        sub_X_train_extra = X_extra[::20]
+        sub_y_train_extra = y_extra[::20]
 
         print("sub_X_train_extra")
         print(sub_X_train_extra.shape)
@@ -244,10 +277,11 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
 
         if not extra:
             X_train, y_train, X_test, y_test, scaler = helper.preprocessing(X_train, y_train, X_test, y_test)
-            sub_X_train = X_train[::60]
-            sub_y_train = y_train[::60]
+            sub_X_train = X_train[::50]
+            sub_y_train = y_train[::50]
         else:
             y_test = np.where(y_test > 0, 0, y_test)
+            #y_test.T[:2] = np.where(y_test.T[:2] < -15, -15, y_test.T[:2])
             y_test = np.where(y_test < -15, -15, y_test)
             X_test = scaler.transform(X_test)
 
@@ -266,8 +300,6 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
 
 
 
-
-
         if not extra:
             chain = SVR_training(sub_X_train, sub_y_train)
 
@@ -280,9 +312,6 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
         error_SVR = error_SVR[:-2]
 
 
-
-
-
         #print(error_SVR.shape)
         #print(error_SVR_bandRMS.shape)
         error_mean_all = np.append(np.asarray(error_mean, dtype=np.float32), error_mean_bandRMS)
@@ -290,7 +319,6 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
 
         error_mean_matrix[idx] = error_mean_all
         error_SVR_matrix[idx] = error_SVR_all
-
 
 
 
@@ -404,6 +432,28 @@ y_extra = np.load("../Data/"+"y_extra.npy")
 #print(y.shape)
 #print(X_extra.shape)
 #print(y_extra.shape)
+def svc_param_selection(X, y, nfolds):
+    Cs = [0.001, 0.01, 0.1, 1, 10]
+    gammas = [0.001, 0.01, 0.1, 1]
+    #epsilons = [0.1,0.2,0.3,0.5]
+    epsilons = [0.1]
+    param_grid = {'C': Cs, 'gamma' : gammas, 'epsilon' : epsilons}
+    y = y.T[1].T
+
+    X = X[::1000]
+    y = y[::1000]
+    print(X.shape)
+    print(y.shape)
+    #quit()
+    grid_search = GridSearchCV(SVR(kernel='rbf'), param_grid, cv=nfolds)
+    grid_search.fit(X, y)
+    print(grid_search.best_params_)
+    return grid_search.best_params_
+
+
+#svc_param_selection(X_extra, y_extra, 10)
+
+
 machine_learning_N_Fold(X, y, file_dict, True, X_extra, y_extra)
 
 

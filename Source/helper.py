@@ -8,10 +8,12 @@ from sklearn.preprocessing import StandardScaler
 def preprocessing(X_train, y_train, X_test, y_test):
 
     y_train = np.where(y_train > 0, 0, y_train) #truncate everything above 0dB
+    #y_test.T[:2] = np.where(y_test.T[:2] > 0, 0, y_test.T[:2])
     y_test = np.where(y_test > 0, 0, y_test)
 
     y_train = np.where(y_train < -15, -15, y_train) #truncate everything below -15dB
     y_test = np.where(y_test < -15, -15, y_test)
+    #y_test.T[:2] = np.where(y_test.T[:2] < 15, 15, y_test.T[:2])
 
 
 
@@ -237,7 +239,7 @@ def plot(y_test, y_pred, subtitle="subtitle", show_plot=False, shuffle=False):
     plt.suptitle(subtitle)
 
 
-    plt.subplot(311)  #acc
+    plt.subplot(211)  #acc
     plt.title('Accompaniment Loudness compared to Mixture Loudness')
     plt.ylabel("short-term LUFS in dB")
     MAE_acc_str = "  Mean Absolute Error: " + str(MAE_acc)[:5] + "dB"
@@ -246,9 +248,12 @@ def plot(y_test, y_pred, subtitle="subtitle", show_plot=False, shuffle=False):
     plt.plot(t, y_test.T[0], label="ground truth")
     plt.plot(t, y_pred.T[0], label="prediction")
     plt.legend(loc='lower center', ncol=2)
+    ax = plt.gca()
+    ax.set_ylim([-12, 0])
 
 
-    plt.subplot(312)  #vox
+
+    plt.subplot(212)  #vox
     plt.title('Vocal Loudness compared to Mixture Loudness')
     plt.ylabel("short-term LUFS in dB")
     MAE_vox_str = "  Mean Absolute Error: " + str(MAE_vox)[:5] + "dB"
@@ -257,10 +262,11 @@ def plot(y_test, y_pred, subtitle="subtitle", show_plot=False, shuffle=False):
     plt.plot(t, y_test.T[1], label="ground truth")
     plt.plot(t, y_pred.T[1], label="prediction")
     plt.legend(loc='lower center', ncol=2)
+    ax = plt.gca()
+    ax.set_ylim([-12, 0])
 
 
     """
-
     plt.subplot(313)  #vox
     plt.title('band 1 to Mixture Loudness')
     plt.ylabel("short-term LUFS in dB")
@@ -279,12 +285,11 @@ def plot(y_test, y_pred, subtitle="subtitle", show_plot=False, shuffle=False):
         plt.plot(t, y_pred.T[i], label="prediction")
         plt.show()
 
-
     plt.plot(t, y_test.T[8], label="ground truth")
     plt.plot(t, y_pred.T[8], label="prediction")
     plt.legend(loc='lower center', ncol=2)
-
     """
+
 
     plt.tight_layout(pad=1.0)
 
