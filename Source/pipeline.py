@@ -14,13 +14,9 @@ counter = 0
 while True:
     ground_truth.ground_truth_generation_MIR_1K(audio_path, ground_truth_path, mixture_audio_path)
     counter += 1
-    if counter >= 2: break;
+    if counter >= 1: break;
 
-
-quit()
-
-
-#feature_extraction.feature_extraction(mixture_audio_path, feature_path)
+feature_extraction.feature_extraction(mixture_audio_path, feature_path)
 
 ############################################################################
 
@@ -30,18 +26,18 @@ mixture_audio_path = "../Audio/Mixture/musdb18hq_mixture"
 ground_truth_path = "../Ground_truth/musdb18hq"
 feature_path = "../Features/musdb18hq/"
 
-#counter = 0
-#while True:
-#    ground_truth.ground_truth_generation_MUSDB(audio_path, ground_truth_path, mixture_audio_path)
-#    counter += 1
-#    if counter >= 1: break;
+counter = 0
+while True:
+    ground_truth.ground_truth_generation_MUSDB(audio_path, ground_truth_path, mixture_audio_path)
+    counter += 1
+    if counter >= 1: break;
 
 
-#feature_extraction.feature_extraction(mixture_audio_path, feature_path)
+feature_extraction.feature_extraction(mixture_audio_path, feature_path)
 
 
 
-#quit()
+quit()
 
 
 ############################################################################

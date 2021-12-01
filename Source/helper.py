@@ -13,6 +13,8 @@ def preprocessing(X_train, y_train, X_test, y_test):
     y_train = np.where(y_train < -15, -15, y_train) #truncate everything below -15dB
     y_test = np.where(y_test < -15, -15, y_test)
 
+
+
     #y_train = np.interp(y_train, (-15, 0), (0, 1))
 
     y_train = 10**(y_train/20) #convert dB to amplitude
@@ -116,14 +118,15 @@ def MAE(y_test, y_pred, Regressor = "unknown"):
     """
     MAE_acc = mean_absolute_error(y_test.T[0].T, y_pred.T[0].T)
     MAE_vox = mean_absolute_error(y_test.T[1].T, y_pred.T[1].T)
+    MAE_bandRMS = np.zeros(10)
+    for band in np.arange(10):
+        MAE_bandRMS[band] = mean_absolute_error(y_test.T[2:][band].T, y_pred.T[2:][band].T)
 
     #print(Regressor + " MAE_acc: " + str(MAE_acc))
     #print(Regressor + " MAE_vox: " + str(MAE_vox))
     #print(" ")
 
-
-
-    return MAE_acc, MAE_vox
+    return MAE_acc, MAE_vox, MAE_bandRMS
 
 
 
@@ -136,12 +139,15 @@ def ME(y_test, y_pred, Regressor = "unknown"):
     """
     ME_acc = max_error(y_test.T[0].T, y_pred.T[0].T)
     ME_vox = max_error(y_test.T[1].T, y_pred.T[1].T)
+    ME_bandRMS = np.zeros(10)
+    for band in np.arange(10):
+        ME_bandRMS[band] = max_error(y_test.T[2:][band].T, y_pred.T[2:][band].T)
 
     #print(Regressor + " ME_acc: " + str(ME_acc))
     #print(Regressor + " ME_vox: " + str(ME_vox))
     #print(" ")
 
-    return ME_acc, ME_vox
+    return ME_acc, ME_vox, ME_bandRMS
 
 
 
@@ -152,8 +158,8 @@ def plot_histogram(y_test, y_pred, subtitle="subtitle", show_plot=False):
     Plot the histogram of the error
     """
 
-    MAE_acc, MAE_vox = MAE(y_test, y_pred)
-    ME_acc, ME_vox = ME(y_test, y_pred)
+    MAE_acc, MAE_vox, MAE_bandRMS = MAE(y_test, y_pred)
+    ME_acc, ME_vox, ME_bandRMS = ME(y_test, y_pred)
 
     abs_error = np.abs(y_test - y_pred)
 
@@ -214,8 +220,8 @@ def plot(y_test, y_pred, subtitle="subtitle", show_plot=False, shuffle=False):
     plot the two predicted and ground truth loudness
     """
 
-    MAE_acc, MAE_vox = MAE(y_test, y_pred)
-    ME_acc, ME_vox = ME(y_test, y_pred)
+    MAE_acc, MAE_vox, MAE_bandRMS = MAE(y_test, y_pred)
+    ME_acc, ME_vox, ME_bandRMS = ME(y_test, y_pred)
 
     if shuffle:
         stack = np.concatenate([y_test, y_pred], axis=1)
@@ -231,7 +237,7 @@ def plot(y_test, y_pred, subtitle="subtitle", show_plot=False, shuffle=False):
     plt.suptitle(subtitle)
 
 
-    plt.subplot(211)  #acc
+    plt.subplot(311)  #acc
     plt.title('Accompaniment Loudness compared to Mixture Loudness')
     plt.ylabel("short-term LUFS in dB")
     MAE_acc_str = "  Mean Absolute Error: " + str(MAE_acc)[:5] + "dB"
@@ -242,7 +248,7 @@ def plot(y_test, y_pred, subtitle="subtitle", show_plot=False, shuffle=False):
     plt.legend(loc='lower center', ncol=2)
 
 
-    plt.subplot(212)  #vox
+    plt.subplot(312)  #vox
     plt.title('Vocal Loudness compared to Mixture Loudness')
     plt.ylabel("short-term LUFS in dB")
     MAE_vox_str = "  Mean Absolute Error: " + str(MAE_vox)[:5] + "dB"
@@ -251,6 +257,34 @@ def plot(y_test, y_pred, subtitle="subtitle", show_plot=False, shuffle=False):
     plt.plot(t, y_test.T[1], label="ground truth")
     plt.plot(t, y_pred.T[1], label="prediction")
     plt.legend(loc='lower center', ncol=2)
+
+
+    """
+
+    plt.subplot(313)  #vox
+    plt.title('band 1 to Mixture Loudness')
+    plt.ylabel("short-term LUFS in dB")
+    MAE_vox_str = "  Mean Absolute Error: " + str(MAE_vox)[:5] + "dB"
+    ME_vox_str = "  Maximum Error: " + str(ME_vox)[:5] + "dB"
+    plt.xlabel('time in seconds \n' + MAE_vox_str +  "\n" +   ME_vox_str)
+    for i in np.arange(12):
+        #i += 2
+        plt.title('band_' + str(i) + '_to Mixture Loudness')
+        plt.ylabel("short-term LUFS in dB")
+        print("test")
+        print(y_test.T[i][100:120])
+        print("pred")
+        print(y_pred.T[i][100:120])
+        plt.plot(t, y_test.T[i], label="ground truth")
+        plt.plot(t, y_pred.T[i], label="prediction")
+        plt.show()
+
+
+    plt.plot(t, y_test.T[8], label="ground truth")
+    plt.plot(t, y_pred.T[8], label="prediction")
+    plt.legend(loc='lower center', ncol=2)
+
+    """
 
     plt.tight_layout(pad=1.0)
 

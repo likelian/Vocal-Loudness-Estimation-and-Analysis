@@ -24,13 +24,12 @@ def data_creation(ground_truth_path, feature_path):
 
 
     abs_ground_truth_path = os.path.abspath(ground_truth_path)
+    abs_feature_path = os.path.abspath(feature_path)
 
     file_dict = {}
     ground_truth_voxREL = np.array([])
     ground_truth_accREL = np.array([])
-
-
-    abs_feature_path = os.path.abspath(feature_path)
+    ground_truth_bandRMS = np.zeros((0,10))
 
 
     features = None
@@ -56,6 +55,10 @@ def data_creation(ground_truth_path, feature_path):
                     current_ground_truth_voxREL = np.array(ground_truth_dict[key])
                     ground_truth_voxREL = np.concatenate([ground_truth_voxREL, current_ground_truth_voxREL], axis=None)
 
+                if "vox_bandRMS" in key and "minus" not in key:
+                    current_ground_truth_bandRMS = np.array(ground_truth_dict[key]).T
+                    ground_truth_bandRMS = np.concatenate([ground_truth_bandRMS, current_ground_truth_bandRMS], axis=0)
+
 
 
             f_feature = open(abs_feature_path+"/"+ "mixture_" + ground_truth_name)
@@ -75,7 +78,14 @@ def data_creation(ground_truth_path, feature_path):
                 features = np.concatenate([features, current_features], axis=0)
 
 
-            if length != current_features.shape[0]:
+            print(current_features.shape)
+            print(current_ground_truth_accREL.shape)
+            print(length)
+
+            #print(ground_truth_pair.shape)
+
+
+            if length/10 != current_features.shape[0]:
                 print("   ")
                 print(filename)
                 print("feature length")
@@ -83,12 +93,14 @@ def data_creation(ground_truth_path, feature_path):
                 print("ground_truth_length")
                 print(length)
                 unmatched += 1
-                continue
-
-            file_dict[ground_truth_name] = (features.shape[0]-length, features.shape[0])
+                #continue
 
 
-        ground_truth_pair = np.stack((ground_truth_accREL, ground_truth_voxREL), axis=-1)
+
+            file_dict[ground_truth_name] = (features.shape[0]-int(length/10), features.shape[0])
+
+
+        ground_truth_pair = np.concatenate((ground_truth_accREL[:, None], ground_truth_voxREL[:, None], ground_truth_bandRMS), axis=1)
 
 
     features = np.nan_to_num(features)
@@ -138,15 +150,16 @@ def eval(y_test, y_pred, filename="", model="_Mean_value"):
     evaluate
     """
 
-    MAE_acc, MAE_vox = helper.MAE(y_test, y_pred, filename+model)
-    ME_acc, ME_vox = helper.ME(y_test, y_pred, filename+model)
+    MAE_acc, MAE_vox, MAE_bandRMS = helper.MAE(y_test, y_pred, filename+model)
+    ME_acc, ME_vox, ME_bandRMS = helper.ME(y_test, y_pred, filename+model)
+
 
 
     helper.plot(y_test, y_pred, filename+model)
     helper.plot_histogram(y_test, y_pred, filename+model)
 
 
-    return (MAE_acc, MAE_vox, ME_acc, ME_vox), y_test, y_pred
+    return (MAE_acc, MAE_vox, ME_acc, ME_vox, MAE_bandRMS, ME_bandRMS), y_test, y_pred
 
 
 
@@ -166,7 +179,7 @@ def SVR_training(sub_X_train, sub_y_train):
 
     regr = make_pipeline(SVR(C=1.0, epsilon=0.2, kernel='rbf'))
 
-    chain = RegressorChain(base_estimator=regr, order=[0, 1])
+    chain = RegressorChain(base_estimator=regr, order=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
 
     chain.fit(sub_X_train, sub_y_train)
 
@@ -192,8 +205,8 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
     """
 
     file_count = len(file_dict.keys())
-    error_mean_matrix = np.zeros((file_count, 4))
-    error_SVR_matrix = np.zeros((file_count, 4))
+    error_mean_matrix = np.zeros((file_count, 24))
+    error_SVR_matrix = np.zeros((file_count, 24))
     idx = 0
 
     y_test_mean_total = None
@@ -228,6 +241,7 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
         X_train = np.concatenate((X[: file_dict[filename][0]], X[file_dict[filename][1] :]), axis=0)
         y_train = np.concatenate((y[: file_dict[filename][0]], y[file_dict[filename][1] :]), axis=0)
 
+
         if not extra:
             X_train, y_train, X_test, y_test, scaler = helper.preprocessing(X_train, y_train, X_test, y_test)
             sub_X_train = X_train[::60]
@@ -244,9 +258,12 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
 
 
 
-
-
         error_mean, y_test_mean, y_pred_mean = eval(y_test, y_pred, filename, model="_Mean_value")
+        error_mean_bandRMS = error_mean[-2:]
+        error_mean = error_mean[:-2]
+
+        #print(error_mean_bandRMS)
+
 
 
 
@@ -256,11 +273,26 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
 
         y_pred = SVR_fitting(chain, X_test)
 
+
+
         error_SVR, y_test_SVR, y_pred_SVR = eval(y_test, y_pred, filename, model="_SVR")
+        error_SVR_bandRMS = error_SVR[-2:]
+        error_SVR = error_SVR[:-2]
 
 
-        error_mean_matrix[idx] = error_mean
-        error_SVR_matrix[idx] = error_SVR
+
+
+
+        #print(error_SVR.shape)
+        #print(error_SVR_bandRMS.shape)
+        error_mean_all = np.append(np.asarray(error_mean, dtype=np.float32), error_mean_bandRMS)
+        error_SVR_all = np.append(np.asarray(error_SVR, dtype=np.float32), error_SVR_bandRMS)
+
+        error_mean_matrix[idx] = error_mean_all
+        error_SVR_matrix[idx] = error_SVR_all
+
+
+
 
         plot_error_histogram = True
 
@@ -368,14 +400,16 @@ y_extra = np.load("../Data/"+"y_extra.npy")
 #file_dict_extra = np.load("../Results/"+"file_dict_extra.npy",allow_pickle='TRUE').item()
 
 
-
+#print(X.shape)
+#print(y.shape)
+#print(X_extra.shape)
+#print(y_extra.shape)
 machine_learning_N_Fold(X, y, file_dict, True, X_extra, y_extra)
 
 
 #machine_learning_N_Fold(X, y, file_dict)
 
 #quit()
-
 
 
 ############################################################################

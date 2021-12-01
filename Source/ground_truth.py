@@ -183,6 +183,12 @@ def ground_truth_generation_MUSDB(audio_path = "../Audio/musdb18hq",
         accREL_shortTermLoudness = acc_shortTermLoudness - mix_shortTermLoudness
         voxREL_shortTermLoudness = vox_shortTermLoudness - mix_shortTermLoudness
 
+        acc_bandRMS = filter_bank(acc, sampleRate)
+        vox_bandRMS = filter_bank(vox, sampleRate)
+        mix_bandRMS = filter_bank(mix, sampleRate)
+        acc_minus_vox_bandRMS =  acc_bandRMS - vox_bandRMS
+
+
         timeInSec = np.arange(acc_shortTermLoudness.size) * 0.1
 
         ground_truth = {}
@@ -193,6 +199,11 @@ def ground_truth_generation_MUSDB(audio_path = "../Audio/musdb18hq",
         ground_truth[filename+"_mix_shortTermLoudness"] = mix_shortTermLoudness.tolist()
         ground_truth[filename+"_accREL_shortTermLoudness"] = accREL_shortTermLoudness.tolist()
         ground_truth[filename+"_voxREL_shortTermLoudness"] = voxREL_shortTermLoudness.tolist()
+
+        ground_truth[filename+"_acc_bandRMS"] = acc_bandRMS.tolist()
+        ground_truth[filename+"_vox_bandRMS"] = vox_bandRMS.tolist()
+        ground_truth[filename+"_mix_bandRMS"] = mix_bandRMS.tolist()
+        ground_truth[filename+"_acc_minus_vox_bandRMS"] = acc_minus_vox_bandRMS.tolist()
 
 
         with open(ground_truth_path +"/"+ filename + str_rand + "_ground_truth.json", 'w') as outfile:
