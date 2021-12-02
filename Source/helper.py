@@ -5,6 +5,7 @@ from sklearn.metrics import max_error
 import random
 from sklearn.preprocessing import StandardScaler
 import pickle
+from matplotlib.ticker import PercentFormatter
 
 def preprocessing(X_train, y_train, X_test, y_test):
 
@@ -175,36 +176,38 @@ def plot_histogram(y_test, y_pred, subtitle="subtitle", show_plot=False):
 
 
     plt.figure()
-    plt.suptitle(subtitle+"_error_histogram")
+    plt.suptitle(subtitle+" Error Histogram")
 
     ax_1 = plt.subplot(211)  #acc
 
-    n, bins, patches = ax_1.hist(abs_error.T[0], bins=150, density=1)
+    n, bins, patches = ax_1.hist(abs_error.T[0], bins=100, density=1)
 
     ax_1.set_xlim([0, 6])
-    ax_1.set_ylim([0, 2])
+    ax_1.set_ylim([0, 1])
 
     MAE_acc_str = "  Mean Absolute Error: " + str(MAE_acc)[:5] + "dB"
     ME_acc_str = "  Maximum Error: " + str(ME_acc)[:5] + "dB"
-    ax_1.set_xlabel('Loudness in dB  \n ' + MAE_acc_str + "\n" + ME_acc_str)
-    ax_1.set_ylabel('Probability density')
+    ax_1.set_xlabel('Short-term LUFS Absolute Error in dB  \n ' + MAE_acc_str + "\n" + ME_acc_str)
+    ax_1.set_ylabel('Percentage')
+    ax_1.yaxis.set_major_formatter(PercentFormatter(xmax=1))
 
-    ax_1.set_title('Histogram of Accompaniment Loudness Absolute Error')
+    ax_1.set_title('Accompaniment Loudness Estimation Absolute Error')
 
 
 
     ax_2 = plt.subplot(212)  #vox
 
-    n, bins, patches = ax_2.hist(abs_error.T[1], bins=150, density=1)
+    n, bins, patches = ax_2.hist(abs_error.T[1], bins=100, density=1)
 
     ax_2.set_xlim([0, 6])
-    ax_2.set_ylim([0, 2])
+    ax_2.set_ylim([0, 1])
 
     MAE_vox_str = "  Mean Absolute Error: " + str(MAE_vox)[:5] + "dB"
     ME_vox_str = "  Maximum Error: " + str(ME_vox)[:5] + "dB"
-    ax_2.set_xlabel('Loudness in dB \n ' + MAE_vox_str +  "\n" +   ME_vox_str)
-    ax_2.set_ylabel('Probability density')
-    ax_2.set_title('Histogram of Vocal Loudness Absolute Error')
+    ax_2.set_xlabel('Short-term LUFS Absolute Error in dB \n ' + MAE_vox_str +  "\n" +   ME_vox_str)
+    ax_2.set_ylabel('Percentage')
+    ax_2.yaxis.set_major_formatter(PercentFormatter(xmax=1))
+    ax_2.set_title('Vocal Loudness Estimation Absolute Error')
 
 
     plt.tight_layout(pad=1.0)
@@ -219,6 +222,79 @@ def plot_histogram(y_test, y_pred, subtitle="subtitle", show_plot=False):
 
     plt.close()
 
+
+def plot_histogram_file(ave_error_SVR_matrix, subtitle="subtitle", show_plot=False):
+
+    """
+    Plot the histogram of the error file level
+    """
+
+    MAE_acc = np.mean(ave_error_SVR_matrix.T[0])
+    ME_acc  = np.max(ave_error_SVR_matrix.T[0])
+
+    MAE_vox = np.mean(ave_error_SVR_matrix.T[1])
+    ME_vox  = np.max(ave_error_SVR_matrix.T[1])
+
+    print("MAE_acc, ME_acc, MAE_vox, ME_vox")
+    print(MAE_acc, ME_acc, MAE_vox, ME_vox)
+
+    MAE_acc_str = "  Mean Absolute Error: " + str(MAE_acc)[:5] + "dB"
+    ME_acc_str = "  Maximum Error: " + str(ME_acc)[:5] + "dB"
+
+    MAE_vox_str = "  Mean Absolute Error: " + str(MAE_vox)[:5] + "dB"
+    ME_vox_str = "  Maximum Error: " + str(ME_vox)[:5] + "dB"
+
+    plt.figure()
+    plt.suptitle(subtitle)
+
+    ax_1 = plt.subplot(211)  #acc
+
+    #bin_manual = 0.1*np.arange(np.floor(ave_error_SVR_matrix.T[0].min()),np.ceil(ave_error_SVR_matrix.T[0].max()))
+    n, bins, patches = ax_1.hist(ave_error_SVR_matrix.T[0], density=1)
+
+
+
+    ax_1.set_xlim([0, 6])
+    ax_1.set_ylim([0, 1])
+
+    MAE_acc_str = "  Mean Error: " + str(MAE_acc)[:5] + "dB"
+    #ME_acc_str = "  Maximum Error: " + str(ME_acc)[:5] + "dB"
+    ax_1.set_xlabel('Short-term LUFS Error in dB  \n ' + MAE_acc_str + "\n" + ME_acc_str)
+    ax_1.set_ylabel('Percentage')
+    ax_1.yaxis.set_major_formatter(PercentFormatter(xmax=1))
+
+    ax_1.set_title('Accompaniment Loudness Estimation Error')
+
+
+
+    ax_2 = plt.subplot(212)  #vox
+
+    bin_manual = np.arange(np.floor(ave_error_SVR_matrix.T[1].min()),np.ceil(ave_error_SVR_matrix.T[1].max()))
+    n, bins, patches = ax_2.hist(ave_error_SVR_matrix.T[1], bins=bin_manual, density=True,
+        weights=np.ones(len(ave_error_SVR_matrix.T[1])) / len(ave_error_SVR_matrix.T[1]))
+
+    ax_2.set_xlim([0, 6])
+    ax_2.set_ylim([0, 1])
+
+    MAE_vox_str = "  Mean Error: " + str(MAE_vox)[:5] + "dB"
+    #ME_vox_str = "  Maximum Error: " + str(ME_vox)[:5] + "dB"
+    ax_2.set_xlabel('Short-term LUFS Error in dB \n ' + MAE_vox_str +  "\n" +   ME_vox_str)
+    ax_2.set_ylabel('Percentage')
+    ax_2.yaxis.set_major_formatter(PercentFormatter(xmax=1))
+    ax_2.set_title('Vocal Loudness Estimation Error')
+
+
+    plt.tight_layout(pad=1.0)
+
+
+
+
+    plt.savefig("../Plots/New/" + subtitle + "_histogram" + '.png')
+
+    if show_plot:
+        plt.show()
+
+    plt.close()
 
 
 
@@ -246,6 +322,7 @@ def plot(y_test, y_pred, y_test_mean, y_pred_mean, error_mean, subtitle="subtitl
     plt.figure()
     plt.suptitle(subtitle)
 
+    plt.rcParams["figure.figsize"] = (6,8)
 
     plt.subplot(211)  #acc
     plt.title('Accompaniment Loudness Compared to Mixture Loudness')
@@ -305,7 +382,7 @@ def plot(y_test, y_pred, y_test_mean, y_pred_mean, error_mean, subtitle="subtitl
     ax.set_ylim([-12, 0])
 
 
-    plt.rcParams["figure.figsize"] = (6,8)
+
 
 
     """

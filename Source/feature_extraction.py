@@ -124,6 +124,7 @@ def shortTermLoudness(buffer, SR=44100, HS=0.1):
 
     return: a Nx1 matrix of shortTermLoudness in dB
     """
+
     LoudnessEBUR128 = essentia.standard.LoudnessEBUR128(sampleRate=SR, hopSize=HS)
     shortTermLoudness = LoudnessEBUR128(buffer)[1][:-1].T[:, np.newaxis]
 
@@ -197,6 +198,7 @@ def extract_spectral_centroid(audio, sampleRate=44100):
 def extract_features(audio_path, filename, feature_path = "../Features/MIR-1K/"):
 
     audio, sampleRate = sf.read(audio_path + "/" + filename)
+
     audio_stereo = audio
     audio = left_channel(audio)
 
@@ -244,7 +246,7 @@ def feature_extraction(audio_path = "../Audio/Mixture/MIR-1K_mixture", feature_p
 
     abs_audio_path = os.path.abspath(audio_path)
 
-    print(abs_audio_path)
+    #print(abs_audio_path)
 
 
     for filename in os.listdir(abs_audio_path):

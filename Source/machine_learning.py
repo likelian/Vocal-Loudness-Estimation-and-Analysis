@@ -175,7 +175,7 @@ def eval(y_test, y_pred, filename="", model="_Mean_Value"):
     helper.plot_histogram(y_test, y_pred, filename+model)
 
 
-    return (MAE_acc, MAE_vox, ME_acc, ME_vox, MAE_bandRMS, ME_bandRMS), y_test, y_pred
+    return (MAE_acc, MAE_vox, ME_acc, ME_vox, MAE_bandRMS, ME_bandRMS), y_test, y_pred, (y_test_mean, y_pred_mean, error_mean)
 
 
 
@@ -193,7 +193,7 @@ def SVR_training(sub_X_train, sub_y_train):
     #SVR_chained_acc_first
     """
     #{'C': 1, 'epsilon': 0.2, 'gamma': 0.001}  target acc
-    regr = make_pipeline(SVR(C=1, epsilon=0.2, kernel='rbf'))
+    regr = make_pipeline(SVR(C=1, epsilon=0.1, kernel='rbf'))
 
     chain = RegressorChain(base_estimator=regr, order=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
 
@@ -229,6 +229,9 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
     file_count = len(file_dict.keys())
     error_mean_matrix = np.zeros((file_count, 24))
     error_SVR_matrix = np.zeros((file_count, 24))
+    ave_error_mean_matrix = np.zeros((file_count, 12))
+    ave_error_SVR_matrix = np.zeros((file_count, 12))
+
     idx = 0
 
     y_test_mean_total = None
@@ -253,13 +256,13 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
         mean_values = Mean_training(sub_X_train_extra, sub_y_train_extra)
 
 
-        #chain = SVR_training(sub_X_train_extra, sub_y_train_extra)
+        chain = SVR_training(sub_X_train_extra, sub_y_train_extra)
 
         end_MUSDB = time.time()
 
         # save
-        #with open('../model/svr.pkl','wb') as f:
-        #    pickle.dump(chain,f)
+        with open('../model/svr.pkl','wb') as f:
+            pickle.dump(chain,f)
 
         # load
         with open('../model/svr.pkl', 'rb') as f:
@@ -294,7 +297,9 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
 
 
 
-        error_mean, y_test_mean, y_pred_mean = eval(y_test, y_pred, filename, model="_Mean_Value")
+        error_mean, y_test_mean, y_pred_mean, ave_mean = eval(y_test, y_pred, filename, model="_Mean_Value")
+        ave_error_mean = ave_mean[2]
+
         error_mean_bandRMS = error_mean[-2:]
         error_mean = error_mean[:-2]
 
@@ -307,19 +312,22 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
 
 
 
-        error_SVR, y_test_SVR, y_pred_SVR = eval(y_test, y_pred, filename, model="_SVR")
+        error_SVR, y_test_SVR, y_pred_SVR, ave_SVR = eval(y_test, y_pred, filename, model="_SVR")
+        ave_error_SVR = ave_SVR[2]
         error_SVR_bandRMS = error_SVR[-2:]
         error_SVR = error_SVR[:-2]
 
 
-        #print(error_SVR.shape)
-        #print(error_SVR_bandRMS.shape)
         error_mean_all = np.append(np.asarray(error_mean, dtype=np.float32), error_mean_bandRMS)
         error_SVR_all = np.append(np.asarray(error_SVR, dtype=np.float32), error_SVR_bandRMS)
+
 
         error_mean_matrix[idx] = error_mean_all
         error_SVR_matrix[idx] = error_SVR_all
 
+
+        ave_error_mean_matrix[idx] = ave_error_mean
+        ave_error_SVR_matrix[idx] = ave_error_SVR
 
 
         plot_error_histogram = True
@@ -337,7 +345,7 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
                 y_pred_mean_total = np.concatenate([y_pred_mean_total, y_pred_mean], axis=0)
                 y_pred_SVR_total = np.concatenate([y_pred_SVR_total, y_pred_SVR], axis=0)
 
-        if idx >= 30: break
+        if idx >= 10: break
         idx += 1
 
     end = time.time()
@@ -345,8 +353,15 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
     error_mean_matrix = error_mean_matrix[:idx]
     error_SVR_matrix = error_SVR_matrix[:idx]
 
-    helper.plot_histogram(y_test_mean_total, y_pred_mean_total, "Total_Mean")
-    helper.plot_histogram(y_test_SVR_total, y_pred_SVR_total, "Total_SVR")
+    ave_error_mean_matrix = ave_error_mean_matrix[:idx]
+    ave_error_SVR_matrix  = ave_error_SVR_matrix[:idx]
+
+
+
+    helper.plot_histogram(y_test_mean_total, y_pred_mean_total, "Mean")
+    helper.plot_histogram(y_test_SVR_total, y_pred_SVR_total, "SVR")
+
+    helper.plot_histogram_file(ave_error_SVR_matrix, "Average Loudness Estimation Error Histogram (file level)")
 
 
     with open("../Results/file_list.json", 'w') as outfile:
@@ -446,8 +461,8 @@ def svc_param_selection(X, y, nfolds):
 
 
 
-with open('../model/svr.pkl', 'rb') as f:
-    chain = pickle.load(f)
+#with open('../model/svr.pkl', 'rb') as f:
+    #chain = pickle.load(f)
 
 #X_train, y_train, X_test, y_test, scaler = helper.preprocessing(X, y, X, y)
 

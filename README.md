@@ -356,10 +356,13 @@ Last week:
 ### 12/2/2021
 
 1. finish the implement octave filter-bank ground truth generation
-2. get some results below
+2. get some results below, pretty bad? just slightly better than average prediction. low band has no vocal, and high band is filtered out in VGG
 3. hpyerparamter tuning done
 4. rescale plot
 5. download dataset
+6. one loudness and frequency estimation of one file
+7. Better plot
+8. estimation.py
 
  epsilon=0.5 gets good vOx_MAE error, to 1.47302572, but the plot looks like not learning (write about this in the paper)
 
@@ -377,5 +380,14 @@ error_SVR_average
 
 
 
-one loudness and frequency estimation of one file
- 
+
+Fix file  level histogram
+plot with different hyperparameter
+analysis.py, after estimation.py
+
+
+Next:
+
+1. full scale evaluation
+2. gtzan dataset (because FMA is crap)
+3. 
