@@ -149,7 +149,7 @@ def Mean_fitting(mean_values, y_test):
 
 
 
-def eval(y_test, y_pred, filename="", model="_Mean_value"):
+def eval(y_test, y_pred, filename="", model="_Mean_Value"):
     """
     evaluate
     """
@@ -167,23 +167,11 @@ def eval(y_test, y_pred, filename="", model="_Mean_value"):
     y_pred_nan[pred_nan_idx] = np.nan
     y_pred_mean = np.nanmean(y_pred, axis=0)
 
-
     error_mean = np.abs(y_test_mean - y_pred_mean)
 
-    #y_test_no_nan = np.where()
-    #y_test_mean = np.mean(y_test, axis=0)
-    #y_pred_mean = np.mean(y_pred, axis=0)
-    print("-------------")
-    print(model)
-    print("y_test_mean")
-    print(y_test_mean)
-    print("y_pred_mean")
-    print(y_pred_mean)
-    print("error_mean")
-    print(error_mean)
-    print("-------------")
+    filename = filename[:-14]
 
-    helper.plot(y_test, y_pred, filename+model)
+    helper.plot(y_test, y_pred, y_test_mean, y_pred_mean, error_mean, filename+model)
     helper.plot_histogram(y_test, y_pred, filename+model)
 
 
@@ -306,7 +294,7 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
 
 
 
-        error_mean, y_test_mean, y_pred_mean = eval(y_test, y_pred, filename, model="_Mean_value")
+        error_mean, y_test_mean, y_pred_mean = eval(y_test, y_pred, filename, model="_Mean_Value")
         error_mean_bandRMS = error_mean[-2:]
         error_mean = error_mean[:-2]
 

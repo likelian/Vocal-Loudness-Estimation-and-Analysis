@@ -224,7 +224,7 @@ def plot_histogram(y_test, y_pred, subtitle="subtitle", show_plot=False):
 
 
 
-def plot(y_test, y_pred, subtitle="subtitle", show_plot=False, shuffle=False):
+def plot(y_test, y_pred, y_test_mean, y_pred_mean, error_mean, subtitle="subtitle", show_plot=False, shuffle=False):
 
     """
     plot the two predicted and ground truth loudness
@@ -248,13 +248,29 @@ def plot(y_test, y_pred, subtitle="subtitle", show_plot=False, shuffle=False):
 
 
     plt.subplot(211)  #acc
-    plt.title('Accompaniment Loudness compared to Mixture Loudness')
-    plt.ylabel("short-term LUFS in dB")
+    plt.title('Accompaniment Loudness Compared to Mixture Loudness')
+    plt.ylabel("Short-term LUFS in dB")
+    GT_ave_LUFS_acc = y_test_mean[0]
+    GT_ave_LUFS_acc_str = "  Average Short-term LUFS: " + str(GT_ave_LUFS_acc)[:5] + "dB"
+    EST_ave_LUFS_acc = y_pred_mean[0]
+    EST_ave_LUFS_acc_str = "  Estimated Average Short-term LUFS: " + str(EST_ave_LUFS_acc)[:6] + "dB"
+    EST_ave_LUFS_acc_err = error_mean[0]
+    EST_ave_LUFS_acc_err_str = "Estimated Average Short-term LUFS Error: " + str(EST_ave_LUFS_acc_err)[:6] + "dB"
     MAE_acc_str = "  Mean Absolute Error: " + str(MAE_acc)[:5] + "dB"
     ME_acc_str = "  Maximum Error: " + str(ME_acc)[:5] + "dB"
-    plt.xlabel('time in seconds \n' + MAE_acc_str +  "\n" +   ME_acc_str)
+    plt.xlabel('time in seconds \n'
+                + ' \n'
+                + MAE_acc_str +  "\n"
+                + ME_acc_str + "\n"
+                + ' \n'
+                + GT_ave_LUFS_acc_str + "\n"
+                + EST_ave_LUFS_acc_str + "\n"
+                + EST_ave_LUFS_acc_err_str + "\n"
+                #+ "   \n"
+                )
+
     plt.plot(t, y_test.T[0], label="ground truth")
-    plt.plot(t, y_pred.T[0], label="prediction")
+    plt.plot(t, y_pred.T[0], label="estimation")
     plt.legend(loc='lower center', ncol=2)
     ax = plt.gca()
     ax.set_ylim([-12, 0])
@@ -262,16 +278,34 @@ def plot(y_test, y_pred, subtitle="subtitle", show_plot=False, shuffle=False):
 
 
     plt.subplot(212)  #vox
-    plt.title('Vocal Loudness compared to Mixture Loudness')
-    plt.ylabel("short-term LUFS in dB")
+    plt.title('Vocal Loudness Compared to Mixture Loudness')
+    plt.ylabel("Short-term LUFS in dB")
+    GT_ave_LUFS_vox = y_test_mean[1]
+    GT_ave_LUFS_vox_str = "  Average Short-term LUFS: " + str(GT_ave_LUFS_vox)[:5] + "dB"
+    EST_ave_LUFS_vox = y_pred_mean[1]
+    EST_ave_LUFS_vox_str = "  Estimated Average Short-term LUFS: " + str(EST_ave_LUFS_vox)[:6] + "dB"
+    EST_ave_LUFS_vox_err = error_mean[1]
+    EST_ave_LUFS_vox_err_str = "Estimated Average Short-term LUFS Error: " + str(EST_ave_LUFS_vox_err)[:6] + "dB"
     MAE_vox_str = "  Mean Absolute Error: " + str(MAE_vox)[:5] + "dB"
     ME_vox_str = "  Maximum Error: " + str(ME_vox)[:5] + "dB"
-    plt.xlabel('time in seconds \n' + MAE_vox_str +  "\n" +   ME_vox_str)
+    plt.xlabel('time in seconds \n'
+                + ' \n'
+                + MAE_vox_str +  "\n"
+                + ME_vox_str + "\n"
+                + ' \n'
+                + GT_ave_LUFS_vox_str + "\n"
+                + EST_ave_LUFS_vox_str + "\n"
+                + EST_ave_LUFS_vox_err_str + "\n"
+                #+ "   \n"
+                )
     plt.plot(t, y_test.T[1], label="ground truth")
-    plt.plot(t, y_pred.T[1], label="prediction")
+    plt.plot(t, y_pred.T[1], label="estimation")
     plt.legend(loc='lower center', ncol=2)
     ax = plt.gca()
     ax.set_ylim([-12, 0])
+
+
+    plt.rcParams["figure.figsize"] = (6,8)
 
 
     """
