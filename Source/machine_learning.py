@@ -6,8 +6,9 @@ from sklearn.multioutput import RegressorChain
 import time
 import helper
 import matplotlib.pyplot as plt
-
 from sklearn.model_selection import GridSearchCV
+import pickle
+
 
 
 ############################################################################
@@ -74,18 +75,7 @@ def data_creation(ground_truth_path, feature_path):
 
             current_ground_truth_bandRMS = current_ground_truth_vox_abs_bandRMS - current_ground_truth_mix_bandRMS
 
-            #print(filename)
-            #print(current_ground_truth_bandRMS)
-            #print(np.mean(acc_minus_vox_bandRMS, axis=0))
-            #print(np.mean(current_ground_truth_vox_abs_bandRMS, axis=0))
-            #print(np.mean(current_ground_truth_mix_bandRMS, axis=0))
-
-            #print(np.mean(current_ground_truth_bandRMS, axis=0))
-            #print(np.mean(current_ground_truth_voxREL, axis=0))
-            #print(np.mean(current_ground_truth_accREL, axis=0))
-
             ground_truth_bandRMS = np.concatenate([ground_truth_bandRMS, current_ground_truth_bandRMS], axis=0)
-
 
 
             f_feature = open(abs_feature_path+"/"+ "mixture_" + ground_truth_name)
@@ -254,16 +244,29 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
 
         X_extra, y_extra, o_o, o__o, scaler = helper.preprocessing(X_extra, y_extra, X_extra, y_extra)
 
-        sub_X_train_extra = X_extra[::20]
-        sub_y_train_extra = y_extra[::20]
+        sub_X_train_extra = X_extra[::100]
+        sub_y_train_extra = y_extra[::100]
 
         print("sub_X_train_extra")
         print(sub_X_train_extra.shape)
 
         start_MUSDB = time.time()
         mean_values = Mean_training(sub_X_train_extra, sub_y_train_extra)
-        chain = SVR_training(sub_X_train_extra, sub_y_train_extra)
+
+
+        #chain = SVR_training(sub_X_train_extra, sub_y_train_extra)
+
         end_MUSDB = time.time()
+
+        # save
+        #with open('../model/svr.pkl','wb') as f:
+        #    pickle.dump(chain,f)
+
+        # load
+        with open('../model/svr.pkl', 'rb') as f:
+            chain = pickle.load(f)
+
+    #quit()
 
 
     for filename in file_dict.keys():
@@ -297,8 +300,6 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
         error_mean = error_mean[:-2]
 
         #print(error_mean_bandRMS)
-
-
 
         if not extra:
             chain = SVR_training(sub_X_train, sub_y_train)
@@ -373,6 +374,9 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
     print("Total time:" + str(end - start) + "\n")
 
     print("Total MUSDB time:" + str(end_MUSDB - start_MUSDB) + "\n")
+
+
+
 
     return None
 
@@ -454,10 +458,17 @@ def svc_param_selection(X, y, nfolds):
 #svc_param_selection(X_extra, y_extra, 10)
 
 
+
+with open('../model/svr.pkl', 'rb') as f:
+    chain = pickle.load(f)
+
+#X_train, y_train, X_test, y_test, scaler = helper.preprocessing(X, y, X, y)
+
+
 machine_learning_N_Fold(X, y, file_dict, True, X_extra, y_extra)
 
-
 #machine_learning_N_Fold(X, y, file_dict)
+
 
 #quit()
 

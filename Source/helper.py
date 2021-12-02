@@ -4,6 +4,7 @@ from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import max_error
 import random
 from sklearn.preprocessing import StandardScaler
+import pickle
 
 def preprocessing(X_train, y_train, X_test, y_test):
 
@@ -15,8 +16,6 @@ def preprocessing(X_train, y_train, X_test, y_test):
     y_test = np.where(y_test < -15, -15, y_test)
     #y_test.T[:2] = np.where(y_test.T[:2] < 15, 15, y_test.T[:2])
 
-
-
     #y_train = np.interp(y_train, (-15, 0), (0, 1))
 
     y_train = 10**(y_train/20) #convert dB to amplitude
@@ -27,10 +26,19 @@ def preprocessing(X_train, y_train, X_test, y_test):
     scaler = StandardScaler()
     scaler.fit(X_train)
 
+
+    scalerfile = '../Model/scaler.sav'
+    pickle.dump(scaler, open(scalerfile, 'wb'))
+
+    scaler = pickle.load(open(scalerfile, 'rb'))
+
+
     X_train = scaler.transform(X_train)
     X_test = scaler.transform(X_test)
 
     return X_train, y_train, X_test, y_test, scaler
+
+
 
 
 
