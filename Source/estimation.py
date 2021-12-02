@@ -20,17 +20,13 @@ def estimate(chain, X_test):
 
     y_pred = chain.predict(X_test[1000:1200])
 
+    #post-processing
     y_pred = np.where(y_pred <= 0.00001, 0.000001, y_pred)
-    #y_test.T[:2] = np.where(y_test.T[:2] < -15, -15, y_test.T[:2])
     y_pred = np.where(y_pred >= 1, 1, y_pred)
 
-    #y_pred = np.nan_to_num(y_pred, nan=0.5, posinf=1, neginf=0.01)
     y_pred = 20 * np.log10(y_pred) #convert amplitude to dB
     y_pred = np.nan_to_num(y_pred, nan=-15, posinf=0, neginf=-15)
 
-    #y_pred = np.interp(y_pred, (0, 1), (-15, 0))
-
-    print(y_pred)
 
     return y_pred
 

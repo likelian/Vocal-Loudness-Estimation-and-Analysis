@@ -9,14 +9,6 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import GridSearchCV
 import pickle
 
-
-
-############################################################################
-
-
-
-
-
 ############################################################################
 
 def data_creation(ground_truth_path, feature_path):
@@ -135,7 +127,6 @@ def Mean_training(sub_X_train, sub_y_train):
 
     """
     Mean value predictor
-
     Use the mean values of the training set groud truth as the low bound result
     """
 
@@ -150,13 +141,9 @@ def Mean_training(sub_X_train, sub_y_train):
 def Mean_fitting(mean_values, y_test):
 
     y_pred = np.zeros(y_test.shape)
-
-
     y_pred += mean_values
 
     y_pred = 20 * np.log10(y_pred) #convert amplitude to dB
-
-    #y_pred = np.interp(y_pred, (0, 1), (-15, 0))
 
     return y_pred
 
@@ -170,7 +157,31 @@ def eval(y_test, y_pred, filename="", model="_Mean_value"):
     MAE_acc, MAE_vox, MAE_bandRMS = helper.MAE(y_test, y_pred, filename+model)
     ME_acc, ME_vox, ME_bandRMS = helper.ME(y_test, y_pred, filename+model)
 
+    test_nan_idx = np.argwhere(y_test.T[1]<=-14.999)
+    y_test_nan = np.copy(y_test)
+    y_test_nan[test_nan_idx] = np.nan
+    y_test_mean = np.nanmean(y_test, axis=0)
 
+    pred_nan_idx = np.argwhere(y_pred.T[1]<=-14.999)
+    y_pred_nan = np.copy(y_pred)
+    y_pred_nan[pred_nan_idx] = np.nan
+    y_pred_mean = np.nanmean(y_pred, axis=0)
+
+
+    error_mean = np.abs(y_test_mean - y_pred_mean)
+
+    #y_test_no_nan = np.where()
+    #y_test_mean = np.mean(y_test, axis=0)
+    #y_pred_mean = np.mean(y_pred, axis=0)
+    print("-------------")
+    print(model)
+    print("y_test_mean")
+    print(y_test_mean)
+    print("y_pred_mean")
+    print(y_pred_mean)
+    print("error_mean")
+    print(error_mean)
+    print("-------------")
 
     helper.plot(y_test, y_pred, filename+model)
     helper.plot_histogram(y_test, y_pred, filename+model)
@@ -376,8 +387,6 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
     print("Total MUSDB time:" + str(end_MUSDB - start_MUSDB) + "\n")
 
 
-
-
     return None
 
 
@@ -387,8 +396,6 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
 
 ground_truth_path = "../Ground_truth/MIR-1K"
 feature_path = "../Features/MIR-1K"
-
-
 
 
 #X, y, file_dict = data_creation(ground_truth_path, feature_path)
@@ -401,8 +408,6 @@ feature_path = "../Features/MIR-1K"
 X = np.load("../Data/"+"X.npy")
 y = np.load("../Data/"+"y.npy")
 file_dict = np.load("../Data/"+"file_dict.npy",allow_pickle='TRUE').item()
-
-
 
 
 ############################################################################
@@ -432,10 +437,6 @@ y_extra = np.load("../Data/"+"y_extra.npy")
 #file_dict_extra = np.load("../Results/"+"file_dict_extra.npy",allow_pickle='TRUE').item()
 
 
-#print(X.shape)
-#print(y.shape)
-#print(X_extra.shape)
-#print(y_extra.shape)
 def svc_param_selection(X, y, nfolds):
     Cs = [0.001, 0.01, 0.1, 1, 10]
     gammas = [0.001, 0.01, 0.1, 1]
@@ -453,8 +454,6 @@ def svc_param_selection(X, y, nfolds):
     grid_search.fit(X, y)
     print(grid_search.best_params_)
     return grid_search.best_params_
-
-
 #svc_param_selection(X_extra, y_extra, 10)
 
 
@@ -464,13 +463,10 @@ with open('../model/svr.pkl', 'rb') as f:
 
 #X_train, y_train, X_test, y_test, scaler = helper.preprocessing(X, y, X, y)
 
-
 machine_learning_N_Fold(X, y, file_dict, True, X_extra, y_extra)
 
 #machine_learning_N_Fold(X, y, file_dict)
 
-
-#quit()
 
 
 ############################################################################
