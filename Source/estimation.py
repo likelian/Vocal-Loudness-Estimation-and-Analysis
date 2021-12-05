@@ -43,15 +43,15 @@ with open(model_location, 'rb') as f:
 
 
 
-audio_path = "../Audio/fma_small"
+audio_path = "../Audio/GTZAN/genres_original"
 abs_audio_path = os.path.abspath(audio_path)
 
-feature_path = "../Features/fma_small/"
+feature_path = "../Features/GTZAN/"
 abs_feature_path = os.path.abspath(feature_path) + "/"
 if not os.path.exists(abs_feature_path):
     os.makedirs(abs_feature_path)
 
-analysis_path = "../Analysis/fma_small"
+analysis_path = "../Analysis/GTZAN"
 abs_analysis_path = os.path.abspath(analysis_path)
 
 
@@ -59,7 +59,7 @@ for folder in [x[0] for x in os.walk(abs_audio_path)][1:]:
 
     for filename in os.listdir(folder):
 
-        if filename[-4:] != ".mp3":
+        if filename[-4:] != ".wav":
             continue
 
         print(filename[:-4])

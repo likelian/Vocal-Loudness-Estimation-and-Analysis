@@ -171,8 +171,8 @@ def eval(y_test, y_pred, filename="", model="_Mean_Value"):
 
     filename = filename[:-14]
 
-    helper.plot(y_test, y_pred, y_test_mean, y_pred_mean, error_mean, filename+model)
-    helper.plot_histogram(y_test, y_pred, filename+model)
+    #helper.plot(y_test, y_pred, y_test_mean, y_pred_mean, error_mean, filename+model)
+    #helper.plot_histogram(y_test, y_pred, filename+model)
 
 
     return (MAE_acc, MAE_vox, ME_acc, ME_vox, MAE_bandRMS, ME_bandRMS), y_test, y_pred, (y_test_mean, y_pred_mean, error_mean)
@@ -261,8 +261,8 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
         end_MUSDB = time.time()
 
         # save
-        with open('../model/svr.pkl','wb') as f:
-            pickle.dump(chain,f)
+        #with open('../model/svr.pkl','wb') as f:
+        #    pickle.dump(chain,f)
 
         # load
         with open('../model/svr.pkl', 'rb') as f:
@@ -345,7 +345,7 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
                 y_pred_mean_total = np.concatenate([y_pred_mean_total, y_pred_mean], axis=0)
                 y_pred_SVR_total = np.concatenate([y_pred_SVR_total, y_pred_SVR], axis=0)
 
-        if idx >= 10: break
+        #if idx >= 10: break
         idx += 1
 
     end = time.time()
@@ -356,6 +356,30 @@ def machine_learning_N_Fold(X, y, file_dict, extra=False, X_extra=None, y_extra=
     ave_error_mean_matrix = ave_error_mean_matrix[:idx]
     ave_error_SVR_matrix  = ave_error_SVR_matrix[:idx]
 
+
+
+    np.save("../Data/"+"error_mean_matrix.npy", error_mean_matrix)
+    np.save("../Data/"+"error_SVR_matrix.npy", error_SVR_matrix)
+    np.save("../Data/"+"ave_error_mean_matrix.npy", ave_error_mean_matrix)
+    np.save("../Data/"+"ave_error_SVR_matrix.npy", ave_error_SVR_matrix)
+
+
+    error_mean_matrix = np.load("../Data/"+"error_mean_matrix.npy")
+    error_SVR_matrix = np.load("../Data/"+"error_SVR_matrix.npy")
+    ave_error_mean_matrix = np.load("../Data/"+"ave_error_mean_matrix.npy")
+    ave_error_SVR_matrix = np.load("../Data/"+"ave_error_SVR_matrix.npy")
+
+
+
+    np.save("../Data/"+"y_test_mean_total.npy", y_test_mean_total)
+    np.save("../Data/"+"y_pred_mean_total.npy", y_pred_mean_total)
+    np.save("../Data/"+"y_test_SVR_total.npy", y_test_SVR_total)
+    np.save("../Data/"+"y_pred_SVR_total.npy", y_pred_SVR_total)
+
+    y_test_mean_total = np.load("../Data/"+"y_test_mean_total.npy")
+    y_pred_mean_total = np.load("../Data/"+"y_pred_mean_total.npy")
+    y_test_SVR_total = np.load("../Data/"+"y_test_SVR_total.npy")
+    y_pred_SVR_total = np.load("../Data/"+"y_pred_SVR_total.npy")
 
 
     helper.plot_histogram(y_test_mean_total, y_pred_mean_total, "Mean")
