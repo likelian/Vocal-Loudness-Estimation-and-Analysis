@@ -2,7 +2,7 @@
 # Vocal Loudness Estimation and Analysis
 
 
-Read the paper[https://github.com/likelian/Vocal-Loudness-Estimation-and-Analysis/blob/main/Paper/Vocal_Loudness_Estimation_and_Genre_Analysis.pdf] here.
+Read the [paper](https://github.com/likelian/Vocal-Loudness-Estimation-and-Analysis/blob/main/Paper/Vocal_Loudness_Estimation_and_Genre_Analysis.pdf)
 
 
 
